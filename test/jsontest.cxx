@@ -20,7 +20,6 @@ TEST_F(GivenNull, WhenParsing) {
     std::stringstream sstr;
     json::data json;
     sstr << json;
-    sstr.seekg(0);
     json::data jsonParsed;
     sstr >> jsonParsed;
     ASSERT_EQ(json, jsonParsed);
@@ -48,7 +47,6 @@ TEST_P(GivenBoolean, WhenParsing) {
     std::stringstream sstr;
     json::data json(expected);
     sstr << json;
-    sstr.seekg(0);
     json::data jsonParsed;
     sstr >> jsonParsed;
     ASSERT_EQ(json, jsonParsed);

@@ -13,11 +13,19 @@ aux_source_directory(src JSON_SRC)
 add_executable(jsonexample ${JSON_SRC})
 target_link_libraries(json dl -rdynamic)
 
-find_package(GTest REQUIRED)
+enable_testing()
 
-include_directories(${GTEST_INCLUDE_DIRS})
+include(FetchContent)
+FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git GIT_TAG release-1.11.0)
+
+FetchContent_GetProperties(googletest)
+if(NOT googletest_POPULATED)
+  FetchContent_Populate(googletest)
+  add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+endif()
+
 aux_source_directory(test JSON_TEST_SRC)
-add_executable(test ${JSON_TEST_SRC})
-target_link_libraries(test GTest::gtest GTest::gtest_main)
+add_executable(testJson ${JSON_TEST_SRC})
+target_link_libraries(testJson gtest gtest_main)
 
-gtest_discover_tests(test)
+add_test(testJson testJson)

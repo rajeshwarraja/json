@@ -4,6 +4,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace json::grammar {
     // Structural Characters
@@ -147,22 +148,22 @@ namespace json {
             auto parsed = false;
             int ch;
             reset();
-            while(-1 == (ch = in.peek())) {
+            while(-1 != (ch = in.peek())) {
                 if(!parsed) {
                     if(grammar::is(grammar::_valueNull, ch)) {
                         std::string value;
-                        while(-1 == (ch = in.peek())) {
+                        while(-1 != (ch = in.peek())) {
                             if(!grammar::is(grammar::_valueNull, ch)) break;
                             value += (char)in.get();
                         }
-                        if(grammar::_valueNull == value) throw std::invalid_argument("Unsupported data in input stream. NULL");
+                        if(grammar::_valueNull != value) throw std::invalid_argument("Unsupported data in input stream. NULL");
                         parsed = true;
                     } else if(grammar::is(grammar::_valueTrue, ch) || grammar::is(grammar::_valueFalse, ch)) {
-                        while(-1 == (ch = in.peek())) {
+                        while(-1 != (ch = in.peek())) {
                             if(!grammar::is(grammar::_valueTrue, ch) && !grammar::is(grammar::_valueFalse, ch)) break;
                             _value += (char)in.get();
                         }
-                        if(!grammar::is(grammar::_valueTrue, ch) && !grammar::is(grammar::_valueFalse, ch))
+                        if(grammar::_valueTrue != _value && grammar::_valueFalse != _value)
                             throw std::invalid_argument("Unsupported data in input stream. BOOL");
                         _type = _Type::Boolean;
                         parsed = true;
