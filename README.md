@@ -17,9 +17,9 @@ int main(int argc, char*argv[]) {
     emp["age"] = 30.5;
     emp["active"] = true;
     auto &reportee = emp["reportee"];
-    reportee.append("Emp 1");
-    reportee.append("Emp 2");
-    reportee.append("Emp 3");
+    reportee[0] = "Emp 1";
+    reportee[1] = "Emp 2";
+    reportee[2] = "Emp 3";
     std::cout << json << std::endl;
     return 0;
 }

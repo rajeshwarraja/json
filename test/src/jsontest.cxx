@@ -137,21 +137,21 @@ class GivenArray : public testing::Test { };
 TEST_F(GivenArray, WhenGenerating) {
     std::stringstream sstr;
     json::data json;
-    json.append(1);
-    json.append(2);
-    json.append(3);
-    json.append(4);
+    json[0] = "text";
+    json[1] = 1.01;
+    json[2] = true;
+    json[3] = nullptr;
     sstr << json;
-    ASSERT_STREQ("[1,2,3,4]", sstr.str().c_str());
+    ASSERT_STREQ("[\"text\",1.010000,true,null]", sstr.str().c_str());
 }
 
 TEST_F(GivenArray, WhenGeneratingMixed) {
     std::stringstream sstr;
     json::data json;
-    json.append(1);
-    json.append(2);
-    json.append(3);
-    json.append("text");
+    json[0] = 1;
+    json[1] = 2;
+    json[2] = 3;
+    json[3] = "text";
     sstr << json;
     ASSERT_STREQ("[1,2,3,\"text\"]", sstr.str().c_str());
 }

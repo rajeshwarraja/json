@@ -57,22 +57,6 @@ namespace json {
         data(double number) { operator=(number); }
         data& operator=(double number) { set(number); return *this; }
 
-        void append(const data& element) {
-            if (_type != _Type::Array) {
-                reset();
-                _type = _Type::Array;
-            }
-            _elements.push_back(element);
-        }
-
-        void add(const char* name, const data& value) {
-            if (_type != _Type::Object) {
-                reset();
-                _type = _Type::Object;
-            }
-            _members.push_back(std::make_pair(name, value));
-        }
-
         operator bool() const { validate(_Type::Boolean); return _value == grammar::_valueTrue; }
         operator int() const { validate(_Type::Number); return std::atoi(_value.c_str()); }
         operator double() const { validate(_Type::Number); return std::atof(_value.c_str()); }
@@ -83,10 +67,12 @@ namespace json {
         }
         operator std::vector<data>() const { validate(_Type::Array); return _elements; }
         
-        data& operator[](const size_t index) {
-            validate(_Type::Array);
-            if (_elements.size() <= index)
+        data& operator[](int index) {
+            if (_type != _Type::Array) { reset(); _type = _Type::Array; }
+            if (_elements.size() < index)
                 throw std::out_of_range("Index is out of range");
+            if (_elements.size() == index)
+                _elements.push_back(json::data());
             return _elements[index];
         }
 
