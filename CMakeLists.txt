@@ -1,5 +1,5 @@
-project(Json)
 cmake_minimum_required(VERSION 3.11)
+project(Json VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -11,7 +11,6 @@ add_library(json SHARED ${JSON_LIB_SRC})
 
 aux_source_directory(src JSON_SRC)
 add_executable(jsonexample ${JSON_SRC})
-target_link_libraries(json dl -rdynamic)
 
 enable_testing()
 
@@ -28,4 +27,9 @@ aux_source_directory(test JSON_TEST_SRC)
 add_executable(testJson ${JSON_TEST_SRC})
 target_link_libraries(testJson gtest gtest_main)
 
-add_test(testJson testJson)
+find_package(GTest QUIET)
+if(GTest_FOUND)
+  gtest_discover_tests(testJson)
+else()
+  add_test(testJson testJson)
+endif()

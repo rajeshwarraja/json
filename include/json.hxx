@@ -24,13 +24,13 @@ namespace json::grammar {
     constexpr const char* _valueNull = "null";
 
     // Digit
-    constexpr const char* _digitStart = "[+-\\d]";
+    constexpr const char* _digitStart = "+\\-\\d";
+    constexpr const char* _digit = "+\\-\\d\\.eE";
     constexpr const char* _digitPattern = "[+-]?\\d+(?:(?:[eE][+-]?|\\.)\\d+)?";
 
     // String
     constexpr const char* _doubleQuotes = "\"";
 
-    bool is_digit_start(char ch) { return std::regex_match(&ch, &ch + 1, std::regex(_digitStart)); }
     bool is_digit(const std::string& text) { return std::regex_match(text, std::regex(_digitPattern)); }
 
     bool is(const char* pattern, char ch) {
@@ -167,6 +167,17 @@ namespace json {
                             throw std::invalid_argument("Unsupported data in input stream. BOOL");
                         _type = _Type::Boolean;
                         parsed = true;
+                    } else if(grammar::is(grammar::_digitStart, ch)) {
+                        while(-1 != (ch = in.peek())) {
+                            if(!grammar::is(grammar::_digit, ch)) break;
+                            _value += (char)in.get();
+                        }
+                        if(!grammar::is_digit(_value))
+                            throw std::invalid_argument("Unsupported data in input stream. NUMBER");
+                        _type = _Type::Number;
+                        parsed = true;
+                    } else {
+                        throw std::invalid_argument("Unsupported data in input stream");
                     }
                 } else if(grammar::is(grammar::_patternWhitespaces, ch)) {
                     in.get(); // discard whitespaces

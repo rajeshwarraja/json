@@ -73,6 +73,16 @@ TEST_P(GivenInteger, WhenGenerating) {
     ASSERT_STREQ(std::to_string(expected).c_str(), sstr.str().c_str());
 }
 
+TEST_P(GivenInteger, WhenParsing) {
+    const auto expected = GetParam();
+    std::stringstream sstr;
+    json::data json(expected);
+    sstr << json;
+    json::data jsonParsed;
+    sstr >> jsonParsed;
+    ASSERT_EQ(json, jsonParsed);
+}
+
 class GivenDouble : public testing::TestWithParam<double> { };
 
 INSTANTIATE_TEST_SUITE_P(When, GivenDouble, testing::Values(
@@ -94,6 +104,16 @@ TEST_P(GivenDouble, WhenGenerating) {
     std::stringstream sstr;
     sstr << json;
     ASSERT_STREQ(std::to_string(expected).c_str(), sstr.str().c_str());
+}
+
+TEST_P(GivenDouble, WhenParsing) {
+    const auto expected = GetParam();
+    std::stringstream sstr;
+    json::data json(expected);
+    sstr << json;
+    json::data jsonParsed;
+    sstr >> jsonParsed;
+    ASSERT_EQ(json, jsonParsed);
 }
 
 class GivenString : public testing::TestWithParam<const char*> { };
