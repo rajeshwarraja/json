@@ -6,5 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 include_directories(include PUBLIC)
 
+add_subdirectory(parser)
+
 enable_testing()
 add_subdirectory(test)

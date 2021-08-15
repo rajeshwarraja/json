@@ -119,7 +119,7 @@ TEST_P(GivenDouble, WhenParsing) {
 class GivenString : public testing::TestWithParam<const char*> { };
 
 INSTANTIATE_TEST_SUITE_P(GivenString, GivenString, testing::Values(
-    "\\", "\b", "\n", "\t", "\r", "\f", "\" - double quotes", "string"
+    "\\", "\b", "\n", "\t", "\r", "\f", "\" - double quotes", "string", ""
 ));
 
 TEST_P(GivenString, WhenParsing) {
