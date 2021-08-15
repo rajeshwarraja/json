@@ -258,8 +258,8 @@ namespace json {
                     } else if(is(_beginArray, ch)) {
                         in.get(); // discard starting array
                         std::vector<data> elements;
-                        while (-1 != (ch = in.peek()) && !is(_endArray, ch)) {
-                            if (is(_valueSeparator, ch)) { in.get(); continue; } // discard value separator
+                        while (-1 != (ch = in.peek()) && *_endArray != ch) {
+                            if (is(_valueSeparator, ch) || is(_patternWhitespaces, ch)) { in.get(); continue; } // discard value separator
                             data element;
                             in >> element;
                             elements.push_back(element);
@@ -271,8 +271,8 @@ namespace json {
                     } else if (is(_beginObject, ch)) {
                         in.get(); // discard starting object
                         std::vector<std::pair<std::string, data>> member;
-                        while (-1 != (ch = in.peek()) && !is(_endObject, ch)) {
-                            if (is(_valueSeparator, ch)) { in.get(); continue; } // discard value separator
+                        while (-1 != (ch = in.peek()) && *_endObject != ch) {
+                            if (is(_valueSeparator, ch) || is(_patternWhitespaces, ch)) { in.get(); continue; } // discard value separator
                             data name; in >> name;
                             if(name._type != _Type::String)
                                 throw std::invalid_argument("Unsupported data in input stream. OBJECT_NAME");
@@ -288,6 +288,8 @@ namespace json {
                         _type = _Type::Object;
                         _members = std::move(member);
                         parsed = true;
+                    } else if(is(_patternWhitespaces, ch)) {
+                        in.get(); // discard whitespaces
                     } else {
                         throw std::invalid_argument("Unsupported data in input stream");
                     }
