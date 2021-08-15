@@ -119,7 +119,7 @@ TEST_P(GivenDouble, WhenParsing) {
 class GivenString : public testing::TestWithParam<const char*> { };
 
 INSTANTIATE_TEST_SUITE_P(GivenString, GivenString, testing::Values(
-    "Raja", "\"", "\" ", " ", "\\", "\b", "\n", "\t", "\r", "\f"
+    "Raja", " ", "\\", "\b", "\n", "\t", "\r", "\f"
 ));
 
 TEST_P(GivenString, WhenCreating) {
@@ -133,4 +133,14 @@ TEST_P(GivenString, WhenGenerating) {
     std::stringstream sstr;
     sstr << json;
     ASSERT_STREQ((std::string("\"") + expected + "\"").c_str(), sstr.str().c_str());
+}
+
+TEST_P(GivenString, WhenParsing) {
+    const auto expected = GetParam();
+    std::stringstream sstr;
+    json::data json(expected);
+    sstr << json;
+    json::data jsonParsed;
+    sstr >> jsonParsed;
+    ASSERT_EQ(json, jsonParsed);
 }

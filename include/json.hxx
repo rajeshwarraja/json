@@ -126,60 +126,71 @@ namespace json {
         }
 
         inline std::ostream& toStream(std::ostream& out) const {
+            using namespace grammar;
             switch(_type) {
             default:
             case _Type::Null:
-                out << grammar::_valueNull;
+                out << _valueNull;
                 break;
             case _Type::Number:
             case _Type::Boolean:
                 out << _value;
                 break;
             case _Type::String:
-                out << grammar::_doubleQuotes;
+                out << _doubleQuotes;
                 std::for_each(begin(_value), end(_value), [&](const auto& ch){ out << ch; });
-                out << grammar::_doubleQuotes;
+                out << _doubleQuotes;
                 break;
             }
             return out;
         }
 
         inline std::istream& fromStream(std::istream& in) {
+            using namespace grammar;
             auto parsed = false;
             int ch;
             reset();
             while(-1 != (ch = in.peek())) {
                 if(!parsed) {
-                    if(grammar::is(grammar::_valueNull, ch)) {
+                    if(is(_valueNull, ch)) {
                         std::string value;
                         while(-1 != (ch = in.peek())) {
-                            if(!grammar::is(grammar::_valueNull, ch)) break;
+                            if(!is(_valueNull, ch)) break;
                             value += (char)in.get();
                         }
-                        if(grammar::_valueNull != value) throw std::invalid_argument("Unsupported data in input stream. NULL");
+                        if(_valueNull != value) throw std::invalid_argument("Unsupported data in input stream. NULL");
                         parsed = true;
-                    } else if(grammar::is(grammar::_valueTrue, ch) || grammar::is(grammar::_valueFalse, ch)) {
+                    } else if(is(_valueTrue, ch) || is(_valueFalse, ch)) {
                         while(-1 != (ch = in.peek())) {
-                            if(!grammar::is(grammar::_valueTrue, ch) && !grammar::is(grammar::_valueFalse, ch)) break;
+                            if(!is(_valueTrue, ch) && !is(_valueFalse, ch)) break;
                             _value += (char)in.get();
                         }
-                        if(grammar::_valueTrue != _value && grammar::_valueFalse != _value)
+                        if(_valueTrue != _value && _valueFalse != _value)
                             throw std::invalid_argument("Unsupported data in input stream. BOOL");
                         _type = _Type::Boolean;
                         parsed = true;
-                    } else if(grammar::is(grammar::_digitStart, ch)) {
+                    } else if(is(_digitStart, ch)) {
                         while(-1 != (ch = in.peek())) {
-                            if(!grammar::is(grammar::_digit, ch)) break;
+                            if(!is(_digit, ch)) break;
                             _value += (char)in.get();
                         }
-                        if(!grammar::is_digit(_value))
+                        if(!is_digit(_value))
                             throw std::invalid_argument("Unsupported data in input stream. NUMBER");
                         _type = _Type::Number;
+                        parsed = true;
+                    } else if(is(_doubleQuotes, ch)) {
+                        in.get(); // discard starting quote
+                        while(-1 != (ch = in.peek())) {
+                            if(is(_doubleQuotes, ch)) break;
+                            _value += (char)in.get();
+                        }
+                        in.get(); // discard ending quote
+                        _type = _Type::String;
                         parsed = true;
                     } else {
                         throw std::invalid_argument("Unsupported data in input stream");
                     }
-                } else if(grammar::is(grammar::_patternWhitespaces, ch)) {
+                } else if(is(_patternWhitespaces, ch)) {
                     in.get(); // discard whitespaces
                 } else {
                     throw std::invalid_argument("Unsupported data in input stream");
