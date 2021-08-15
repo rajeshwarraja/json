@@ -30,11 +30,22 @@ namespace json::grammar {
 
     // String
     constexpr const char* _doubleQuotes = "\"";
+    constexpr const char* _reverseSolidus = "\\";
+    constexpr const char* _backspace = "\b";
+    constexpr const char* _formFeed = "\f";
+    constexpr const char* _lineFeed = "\n";
+    constexpr const char* _carriageReturn = "\r";
+    constexpr const char* _tab = "\t";
 
     bool is_digit(const std::string& text) { return std::regex_match(text, std::regex(_digitPattern)); }
 
     bool is(const char* pattern, char ch) {
         return std::regex_match(&ch, &ch + 1, std::regex(std::string("[") + pattern + "]"));
+    }
+
+    bool is_escaped(char ch) {
+        return *_doubleQuotes == ch || *_reverseSolidus == ch || *_backspace == ch || *_formFeed == ch
+            || *_formFeed == ch || *_carriageReturn == ch || *_tab == ch;
     }
 }
 
@@ -172,7 +183,15 @@ namespace json {
                 break;
             case _Type::String:
                 out << _doubleQuotes;
-                std::for_each(begin(_value), end(_value), [&](const auto& ch){ out << ch; });
+                std::for_each(begin(_value), end(_value), [&](const auto& ch) {
+                    if(is_escaped(ch)) out << _reverseSolidus;
+                    if(is(_tab, ch)) out << 't';
+                    else if(is(_carriageReturn, ch)) out << 'r';
+                    else if(is(_lineFeed, ch)) out << 'n';
+                    else if(is(_formFeed, ch)) out << 'f';
+                    else if(is(_backspace, ch)) out << 'b';
+                    else out << ch;
+                });
                 out << _doubleQuotes;
                 break;
             case _Type::Array:
@@ -224,9 +243,21 @@ namespace json {
                         parsed = true;
                     } else if(is(_doubleQuotes, ch)) {
                         in.get(); // discard starting quote
+                        auto escaped = false;
                         while(-1 != (ch = in.peek())) {
                             if(is(_doubleQuotes, ch)) break;
-                            _value += (char)in.get();
+                            escaped = !escaped && is(_reverseSolidus, ch);
+                            if(escaped) {
+                                in.get(); // discard
+                                ch = in.peek();
+                                if('b' == ch) { in.get(); _value += _backspace; escaped = false; }
+                                else if('f' == ch) { in.get(); _value += _formFeed; escaped = false; }
+                                else if('n' == ch) { in.get(); _value += _lineFeed; escaped = false; }
+                                else if('r' == ch) { in.get(); _value += _carriageReturn; escaped = false; }
+                                else if('t' == ch) { in.get(); _value += _tab; escaped = false; }
+                            } else {
+                                _value += (char)in.get();
+                            }
                         }
                         if(!is(_doubleQuotes, ch))
                             throw std::invalid_argument("Unsupported data in input stream. STRING");
