@@ -276,6 +276,7 @@ namespace json {
                             data name; in >> name;
                             if(name._type != _Type::String)
                                 throw std::invalid_argument("Unsupported data in input stream. OBJECT_NAME");
+                            while(-1 != (ch = in.peek()) && is(_patternWhitespaces, ch)) in.get(); // discard name separator
                             if (-1 != (ch = in.peek()) && is(_nameSeparator, ch)) {
                                 in.get(); // discard name separator;
                             } else {
