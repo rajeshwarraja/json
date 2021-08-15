@@ -45,7 +45,7 @@ namespace json::grammar {
 
     bool is_escaped(char ch) {
         return *_doubleQuotes == ch || *_reverseSolidus == ch || *_backspace == ch || *_formFeed == ch
-            || *_formFeed == ch || *_carriageReturn == ch || *_tab == ch;
+            || *_lineFeed == ch || *_carriageReturn == ch || *_tab == ch;
     }
 }
 
@@ -245,8 +245,8 @@ namespace json {
                         in.get(); // discard starting quote
                         auto escaped = false;
                         while(-1 != (ch = in.peek())) {
-                            if(is(_doubleQuotes, ch)) break;
-                            escaped = !escaped && is(_reverseSolidus, ch);
+                            if(*_doubleQuotes == ch && !escaped) break;
+                            escaped = !escaped && *_reverseSolidus == ch;
                             if(escaped) {
                                 in.get(); // discard
                                 ch = in.peek();
