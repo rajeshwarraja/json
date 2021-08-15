@@ -16,7 +16,7 @@ namespace json::grammar {
     constexpr const char* _valueSeparator = ",";
 
     // Patterns
-    constexpr const char* _patternWhitespaces = "[ \t\n\r]+";
+    constexpr const char* _patternWhitespaces = " \t\n\r";
     
     // Values
     constexpr const char* _valueFalse = "false";
@@ -55,6 +55,22 @@ namespace json {
         data(double number) { operator=(number); }
         data& operator=(double number) { set(number); return *this; }
 
+        void append(const data& element) {
+            if (_type != _Type::Array) {
+                reset();
+                _type = _Type::Array;
+            }
+            _elements.push_back(element);
+        }
+
+        void add(const char* name, const data& value) {
+            if (_type != _Type::Object) {
+                reset();
+                _type = _Type::Object;
+            }
+            _members.push_back(std::make_pair(name, value));
+        }
+
         operator bool() const { validate(_Type::Boolean); return _value == grammar::_valueTrue; }
         operator int() const { validate(_Type::Number); return std::atoi(_value.c_str()); }
         operator double() const { validate(_Type::Number); return std::atof(_value.c_str()); }
@@ -63,13 +79,31 @@ namespace json {
             validate(_Type::String); 
             return _value.c_str(); 
         }
+        operator std::vector<data>() const { validate(_Type::Array); return _elements; }
+        
+        data& operator[](const size_t index) {
+            validate(_Type::Array);
+            if (_elements.size() <= index)
+                throw std::out_of_range("Index is out of range");
+            return _elements[index];
+        }
+
+        data& operator[](const char* name) {
+            if (_type != _Type::Object) { reset(); _type = _Type::Object; }
+            auto itr = std::find_if(_members.begin(), _members.end(), [&](const auto& pair) { return pair.first == name; });
+            if (itr == _members.end()) {
+                _members.push_back(std::make_pair(name, data()));
+                return _members.back().second;
+            }
+            return itr->second;
+        }
 
         bool operator==(const data& other) const {
             return _type == other._type && _value == other._value && _elements == other._elements && _members == other._members;
         }
 
         bool operator!=(const data& other) const {
-            return !(*this != other);
+            return !(*this == other);
         }
 
         friend std::ostream& operator<<(std::ostream& out, const data& json) { return json.toStream(out); }
@@ -141,6 +175,16 @@ namespace json {
                 std::for_each(begin(_value), end(_value), [&](const auto& ch){ out << ch; });
                 out << _doubleQuotes;
                 break;
+            case _Type::Array:
+                out << _beginArray;
+                std::for_each(_elements.begin(), _elements.end(), [&](const auto& element) { if (element != _elements.front()) out << _valueSeparator; out << element; });
+                out << _endArray;
+                break;
+            case _Type::Object:
+                out << _beginObject;
+                std::for_each(_members.begin(), _members.end(), [&](const auto& pair) { if (pair != _members.front()) out << _valueSeparator; out << _doubleQuotes << pair.first << _doubleQuotes << _nameSeparator << pair.second; });
+                out << _endObject;
+                break;
             }
             return out;
         }
@@ -184,14 +228,51 @@ namespace json {
                             if(is(_doubleQuotes, ch)) break;
                             _value += (char)in.get();
                         }
+                        if(!is(_doubleQuotes, ch))
+                            throw std::invalid_argument("Unsupported data in input stream. STRING");
                         in.get(); // discard ending quote
                         _type = _Type::String;
+                        parsed = true;
+                    } else if(is(_beginArray, ch)) {
+                        in.get(); // discard starting array
+                        std::vector<data> elements;
+                        while (-1 != (ch = in.peek()) && !is(_endArray, ch)) {
+                            if (is(_valueSeparator, ch)) { in.get(); continue; } // discard value separator
+                            data element;
+                            in >> element;
+                            elements.push_back(element);
+                        }
+                        in.get(); // discard endign array
+                        _type = _Type::Array;
+                        _elements = std::move(elements);
+                        parsed = true;
+                    } else if (is(_beginObject, ch)) {
+                        in.get(); // discard starting object
+                        std::vector<std::pair<std::string, data>> member;
+                        while (-1 != (ch = in.peek()) && !is(_endObject, ch)) {
+                            if (is(_valueSeparator, ch)) { in.get(); continue; } // discard value separator
+                            data name; in >> name;
+                            if(name._type != _Type::String)
+                                throw std::invalid_argument("Unsupported data in input stream. OBJECT_NAME");
+                            if (-1 != (ch = in.peek()) && is(_nameSeparator, ch)) {
+                                in.get(); // discard name separator;
+                            } else {
+                                throw std::invalid_argument("Unsupported data in input stream. OBJECT");
+                            }
+                            data value; in >> value;
+                            member.push_back(std::make_pair((std::string)name, value));
+                        }
+                        in.get(); // discard ending object
+                        _type = _Type::Object;
+                        _members = std::move(member);
                         parsed = true;
                     } else {
                         throw std::invalid_argument("Unsupported data in input stream");
                     }
                 } else if(is(_patternWhitespaces, ch)) {
                     in.get(); // discard whitespaces
+                } else if(parsed) {
+                    return in;
                 } else {
                     throw std::invalid_argument("Unsupported data in input stream");
                 }

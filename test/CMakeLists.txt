@@ -16,6 +16,7 @@ endif()
 aux_source_directory(src JSON_TEST_SRC)
 add_executable(testJson ${JSON_TEST_SRC})
 target_link_libraries(testJson gtest gtest_main)
+target_compile_options(testJson PUBLIC /MTd)
 
 find_package(GTest QUIET)
 if(GTest_FOUND)

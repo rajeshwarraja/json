@@ -144,3 +144,46 @@ TEST_P(GivenString, WhenParsing) {
     sstr >> jsonParsed;
     ASSERT_EQ(json, jsonParsed);
 }
+
+class GivenArray : public testing::Test { };
+
+TEST_F(GivenArray, WhenCreating) {
+    
+}
+
+TEST_F(GivenArray, WhenGenerating) {
+    std::stringstream sstr;
+    json::data json;
+    json.append(1);
+    json.append(2);
+    json.append(3);
+    json.append(4);
+    sstr << json;
+    ASSERT_STREQ("[1,2,3,4]", sstr.str().c_str());
+}
+
+class GivenObject : public testing::Test { };
+
+TEST_F(GivenObject, WhenCreating) {
+
+}
+
+TEST_F(GivenObject, WhenGenerating) {
+    json::data json;
+    auto& employee = json["employee"];
+    employee["name"] = "Raja";
+    std::stringstream sstr;
+    sstr << json;
+    ASSERT_STREQ("{\"employee\":{\"name\":\"Raja\"}}", sstr.str().c_str());
+}
+
+TEST_F(GivenObject, WhenParsing) {
+    json::data json;
+    auto& employee = json["employee"];
+    employee["name"] = "Raja";
+    std::stringstream sstr;
+    sstr << json;
+    json::data jsonParsed;
+    sstr >> jsonParsed;
+    ASSERT_EQ(json, jsonParsed);
+}
