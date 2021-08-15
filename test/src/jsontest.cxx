@@ -119,18 +119,61 @@ TEST_P(GivenDouble, WhenParsing) {
 class GivenString : public testing::TestWithParam<const char*> { };
 
 INSTANTIATE_TEST_SUITE_P(GivenString, GivenString, testing::Values(
-    "Raja", "\"", "\" ", " ", "\\", "\b", "\n", "\t", "\r", "\f"
+    "\\", "\b", "\n", "\t", "\r", "\f", "\" - double quotes", "string"
 ));
 
-TEST_P(GivenString, WhenCreating) {
-    json::data json(GetParam());
-    ASSERT_STREQ(GetParam(), (const char*)json) << "Json data is not "  << GetParam();
+TEST_P(GivenString, WhenParsing) {
+    const auto expected = GetParam();
+    std::stringstream sstr;
+    json::data json(expected);
+    sstr << json;
+    json::data jsonParsed;
+    sstr >> jsonParsed;
+    ASSERT_EQ(json, jsonParsed);
 }
 
-TEST_P(GivenString, WhenGenerating) {
-    const auto expected = GetParam();
-    json::data json(expected);
+class GivenArray : public testing::Test { };
+
+TEST_F(GivenArray, WhenGenerating) {
+    std::stringstream sstr;
+    json::data json;
+    json.append(1);
+    json.append(2);
+    json.append(3);
+    json.append(4);
+    sstr << json;
+    ASSERT_STREQ("[1,2,3,4]", sstr.str().c_str());
+}
+
+TEST_F(GivenArray, WhenGeneratingMixed) {
+    std::stringstream sstr;
+    json::data json;
+    json.append(1);
+    json.append(2);
+    json.append(3);
+    json.append("text");
+    sstr << json;
+    ASSERT_STREQ("[1,2,3,\"text\"]", sstr.str().c_str());
+}
+
+class GivenObject : public testing::Test { };
+
+TEST_F(GivenObject, WhenGenerating) {
+    json::data json;
+    auto& employee = json["employee"];
+    employee["name"] = "Raja";
     std::stringstream sstr;
     sstr << json;
-    ASSERT_STREQ((std::string("\"") + expected + "\"").c_str(), sstr.str().c_str());
+    ASSERT_STREQ("{\"employee\":{\"name\":\"Raja\"}}", sstr.str().c_str());
+}
+
+TEST_F(GivenObject, WhenParsing) {
+    json::data json;
+    auto& employee = json["employee"];
+    employee["name"] = "Raja";
+    std::stringstream sstr;
+    sstr << json;
+    json::data jsonParsed;
+    sstr >> jsonParsed;
+    ASSERT_EQ(json, jsonParsed);
 }

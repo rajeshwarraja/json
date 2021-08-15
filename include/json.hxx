@@ -16,7 +16,7 @@ namespace json::grammar {
     constexpr const char* _valueSeparator = ",";
 
     // Patterns
-    constexpr const char* _patternWhitespaces = "[ \t\n\r]+";
+    constexpr const char* _patternWhitespaces = " \t\n\r";
     
     // Values
     constexpr const char* _valueFalse = "false";
@@ -30,11 +30,22 @@ namespace json::grammar {
 
     // String
     constexpr const char* _doubleQuotes = "\"";
+    constexpr const char* _reverseSolidus = "\\";
+    constexpr const char* _backspace = "\b";
+    constexpr const char* _formFeed = "\f";
+    constexpr const char* _lineFeed = "\n";
+    constexpr const char* _carriageReturn = "\r";
+    constexpr const char* _tab = "\t";
 
     bool is_digit(const std::string& text) { return std::regex_match(text, std::regex(_digitPattern)); }
 
     bool is(const char* pattern, char ch) {
         return std::regex_match(&ch, &ch + 1, std::regex(std::string("[") + pattern + "]"));
+    }
+
+    bool is_escaped(char ch) {
+        return *_doubleQuotes == ch || *_reverseSolidus == ch || *_backspace == ch || *_formFeed == ch
+            || *_lineFeed == ch || *_carriageReturn == ch || *_tab == ch;
     }
 }
 
@@ -55,6 +66,22 @@ namespace json {
         data(double number) { operator=(number); }
         data& operator=(double number) { set(number); return *this; }
 
+        void append(const data& element) {
+            if (_type != _Type::Array) {
+                reset();
+                _type = _Type::Array;
+            }
+            _elements.push_back(element);
+        }
+
+        void add(const char* name, const data& value) {
+            if (_type != _Type::Object) {
+                reset();
+                _type = _Type::Object;
+            }
+            _members.push_back(std::make_pair(name, value));
+        }
+
         operator bool() const { validate(_Type::Boolean); return _value == grammar::_valueTrue; }
         operator int() const { validate(_Type::Number); return std::atoi(_value.c_str()); }
         operator double() const { validate(_Type::Number); return std::atof(_value.c_str()); }
@@ -63,13 +90,31 @@ namespace json {
             validate(_Type::String); 
             return _value.c_str(); 
         }
+        operator std::vector<data>() const { validate(_Type::Array); return _elements; }
+        
+        data& operator[](const size_t index) {
+            validate(_Type::Array);
+            if (_elements.size() <= index)
+                throw std::out_of_range("Index is out of range");
+            return _elements[index];
+        }
+
+        data& operator[](const char* name) {
+            if (_type != _Type::Object) { reset(); _type = _Type::Object; }
+            auto itr = std::find_if(_members.begin(), _members.end(), [&](const auto& pair) { return pair.first == name; });
+            if (itr == _members.end()) {
+                _members.push_back(std::make_pair(name, data()));
+                return _members.back().second;
+            }
+            return itr->second;
+        }
 
         bool operator==(const data& other) const {
             return _type == other._type && _value == other._value && _elements == other._elements && _members == other._members;
         }
 
         bool operator!=(const data& other) const {
-            return !(*this != other);
+            return !(*this == other);
         }
 
         friend std::ostream& operator<<(std::ostream& out, const data& json) { return json.toStream(out); }
@@ -126,61 +171,139 @@ namespace json {
         }
 
         inline std::ostream& toStream(std::ostream& out) const {
+            using namespace grammar;
             switch(_type) {
             default:
             case _Type::Null:
-                out << grammar::_valueNull;
+                out << _valueNull;
                 break;
             case _Type::Number:
             case _Type::Boolean:
                 out << _value;
                 break;
             case _Type::String:
-                out << grammar::_doubleQuotes;
-                std::for_each(begin(_value), end(_value), [&](const auto& ch){ out << ch; });
-                out << grammar::_doubleQuotes;
+                out << _doubleQuotes;
+                std::for_each(begin(_value), end(_value), [&](const auto& ch) {
+                    if(is_escaped(ch)) out << _reverseSolidus;
+                    if(is(_tab, ch)) out << 't';
+                    else if(is(_carriageReturn, ch)) out << 'r';
+                    else if(is(_lineFeed, ch)) out << 'n';
+                    else if(is(_formFeed, ch)) out << 'f';
+                    else if(is(_backspace, ch)) out << 'b';
+                    else out << ch;
+                });
+                out << _doubleQuotes;
+                break;
+            case _Type::Array:
+                out << _beginArray;
+                std::for_each(_elements.begin(), _elements.end(), [&](const auto& element) { if (element != _elements.front()) out << _valueSeparator; out << element; });
+                out << _endArray;
+                break;
+            case _Type::Object:
+                out << _beginObject;
+                std::for_each(_members.begin(), _members.end(), [&](const auto& pair) { if (pair != _members.front()) out << _valueSeparator; out << _doubleQuotes << pair.first << _doubleQuotes << _nameSeparator << pair.second; });
+                out << _endObject;
                 break;
             }
             return out;
         }
 
         inline std::istream& fromStream(std::istream& in) {
+            using namespace grammar;
             auto parsed = false;
             int ch;
             reset();
             while(-1 != (ch = in.peek())) {
                 if(!parsed) {
-                    if(grammar::is(grammar::_valueNull, ch)) {
+                    if(is(_valueNull, ch)) {
                         std::string value;
                         while(-1 != (ch = in.peek())) {
-                            if(!grammar::is(grammar::_valueNull, ch)) break;
+                            if(!is(_valueNull, ch)) break;
                             value += (char)in.get();
                         }
-                        if(grammar::_valueNull != value) throw std::invalid_argument("Unsupported data in input stream. NULL");
+                        if(_valueNull != value) throw std::invalid_argument("Unsupported data in input stream. NULL");
                         parsed = true;
-                    } else if(grammar::is(grammar::_valueTrue, ch) || grammar::is(grammar::_valueFalse, ch)) {
+                    } else if(is(_valueTrue, ch) || is(_valueFalse, ch)) {
                         while(-1 != (ch = in.peek())) {
-                            if(!grammar::is(grammar::_valueTrue, ch) && !grammar::is(grammar::_valueFalse, ch)) break;
+                            if(!is(_valueTrue, ch) && !is(_valueFalse, ch)) break;
                             _value += (char)in.get();
                         }
-                        if(grammar::_valueTrue != _value && grammar::_valueFalse != _value)
+                        if(_valueTrue != _value && _valueFalse != _value)
                             throw std::invalid_argument("Unsupported data in input stream. BOOL");
                         _type = _Type::Boolean;
                         parsed = true;
-                    } else if(grammar::is(grammar::_digitStart, ch)) {
+                    } else if(is(_digitStart, ch)) {
                         while(-1 != (ch = in.peek())) {
-                            if(!grammar::is(grammar::_digit, ch)) break;
+                            if(!is(_digit, ch)) break;
                             _value += (char)in.get();
                         }
-                        if(!grammar::is_digit(_value))
+                        if(!is_digit(_value))
                             throw std::invalid_argument("Unsupported data in input stream. NUMBER");
                         _type = _Type::Number;
+                        parsed = true;
+                    } else if(is(_doubleQuotes, ch)) {
+                        in.get(); // discard starting quote
+                        auto escaped = false;
+                        while(-1 != (ch = in.peek())) {
+                            if(*_doubleQuotes == ch && !escaped) break;
+                            escaped = !escaped && *_reverseSolidus == ch;
+                            if(escaped) {
+                                in.get(); // discard
+                                ch = in.peek();
+                                if('b' == ch) { in.get(); _value += _backspace; escaped = false; }
+                                else if('f' == ch) { in.get(); _value += _formFeed; escaped = false; }
+                                else if('n' == ch) { in.get(); _value += _lineFeed; escaped = false; }
+                                else if('r' == ch) { in.get(); _value += _carriageReturn; escaped = false; }
+                                else if('t' == ch) { in.get(); _value += _tab; escaped = false; }
+                            } else {
+                                _value += (char)in.get();
+                            }
+                        }
+                        if(!is(_doubleQuotes, ch))
+                            throw std::invalid_argument("Unsupported data in input stream. STRING");
+                        in.get(); // discard ending quote
+                        _type = _Type::String;
+                        parsed = true;
+                    } else if(is(_beginArray, ch)) {
+                        in.get(); // discard starting array
+                        std::vector<data> elements;
+                        while (-1 != (ch = in.peek()) && !is(_endArray, ch)) {
+                            if (is(_valueSeparator, ch)) { in.get(); continue; } // discard value separator
+                            data element;
+                            in >> element;
+                            elements.push_back(element);
+                        }
+                        in.get(); // discard endign array
+                        _type = _Type::Array;
+                        _elements = std::move(elements);
+                        parsed = true;
+                    } else if (is(_beginObject, ch)) {
+                        in.get(); // discard starting object
+                        std::vector<std::pair<std::string, data>> member;
+                        while (-1 != (ch = in.peek()) && !is(_endObject, ch)) {
+                            if (is(_valueSeparator, ch)) { in.get(); continue; } // discard value separator
+                            data name; in >> name;
+                            if(name._type != _Type::String)
+                                throw std::invalid_argument("Unsupported data in input stream. OBJECT_NAME");
+                            if (-1 != (ch = in.peek()) && is(_nameSeparator, ch)) {
+                                in.get(); // discard name separator;
+                            } else {
+                                throw std::invalid_argument("Unsupported data in input stream. OBJECT");
+                            }
+                            data value; in >> value;
+                            member.push_back(std::make_pair((std::string)name, value));
+                        }
+                        in.get(); // discard ending object
+                        _type = _Type::Object;
+                        _members = std::move(member);
                         parsed = true;
                     } else {
                         throw std::invalid_argument("Unsupported data in input stream");
                     }
-                } else if(grammar::is(grammar::_patternWhitespaces, ch)) {
+                } else if(is(_patternWhitespaces, ch)) {
                     in.get(); // discard whitespaces
+                } else if(parsed) {
+                    return in;
                 } else {
                     throw std::invalid_argument("Unsupported data in input stream");
                 }
