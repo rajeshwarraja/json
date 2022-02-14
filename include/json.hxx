@@ -43,7 +43,7 @@ namespace json::grammar {
 namespace json {
 	namespace formatter {
 		constexpr static uint8_t tab_width = 2;
-		constexpr static std::ios_base::fmtflags pretty_flag = 0x9000;
+		constexpr static std::ios_base::fmtflags pretty_flag = std::ios_base::fmtflags(0x9000);
 		const static int indent_depth = std::ios_base::xalloc();
 		long& indent(std::ostream& out) { return out.iword(indent_depth); }
 	}
