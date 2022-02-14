@@ -20,7 +20,7 @@ int main(int argc, char*argv[]) {
     reportee[0] = "Emp 1";
     reportee[1] = "Emp 2";
     reportee[2] = "Emp 3";
-    std::cout << json << std::endl;
+    std::cout << json::pretty << json << std::endl;
     return 0;
 }
 ```

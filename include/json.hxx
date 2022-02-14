@@ -41,6 +41,15 @@ namespace json::grammar {
 }
 
 namespace json {
+	namespace formatter {
+		constexpr static uint8_t tab_width = 2;
+		constexpr static std::ios_base::fmtflags pretty_flag = 0x9000;
+		const static int indent_depth = std::ios_base::xalloc();
+		long& indent(std::ostream& out) { return out.iword(indent_depth); }
+	}
+	inline std::ostream& pretty(std::ostream& out) { out.setf(formatter::pretty_flag); return out; }
+	inline std::ostream& nopretty(std::ostream& out) { out.unsetf(formatter::pretty_flag); return out; }
+
 	class data {
 		enum class _Type { Null, Boolean, Object, Array, Number, String };
 	public:
@@ -148,6 +157,7 @@ namespace json {
 		}
 
 		inline std::ostream& toStream(std::ostream& out) const {
+			const auto pretty = (out.flags() & formatter::pretty_flag) == formatter::pretty_flag;
 			using namespace grammar;
 			switch (_type) {
 			default:
@@ -173,12 +183,18 @@ namespace json {
 				break;
 			case _Type::Array:
 				out << _beginArray;
-				std::for_each(_elements.begin(), _elements.end(), [&](const auto& element) { if (element != _elements.front()) out << _valueSeparator; out << element; });
+				formatter::indent(out) += 1;
+				std::for_each(_elements.begin(), _elements.end(), [&](const auto& element) {if (element != _elements.front()) out << _valueSeparator; if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' '); out << element; });
+				formatter::indent(out) -= 1;
+				if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' ');
 				out << _endArray;
 				break;
 			case _Type::Object:
 				out << _beginObject;
-				std::for_each(_members.begin(), _members.end(), [&](const auto& pair) { if (pair != _members.front()) out << _valueSeparator; out << _doubleQuotes << pair.first << _doubleQuotes << _nameSeparator << pair.second; });
+				formatter::indent(out) += 1;
+				std::for_each(_members.begin(), _members.end(), [&](const auto& pair) { if (pair != _members.front()) out << _valueSeparator; if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' '); out << _doubleQuotes << pair.first << _doubleQuotes << (pretty? u8" " : u8"") << _nameSeparator << (pretty? u8" " : u8"") << pair.second; });
+				formatter::indent(out) -= 1;
+				if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' ');
 				out << _endObject;
 				break;
 			}
