@@ -99,7 +99,7 @@ namespace json {
 		data& operator[](int index) {
 			if (_type != _Type::Array) { reset(); _type = _Type::Array; }
 			if (_elements.size() < index)
-				throw std::out_of_range("Index is out of range");
+				_elements.resize(index + 1);
 			if (_elements.size() == index)
 				_elements.push_back(json::data());
 			return _elements[index];

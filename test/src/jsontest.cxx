@@ -156,6 +156,17 @@ TEST_F(GivenArray, WhenGeneratingMixed) {
     ASSERT_STREQ("[1,2,3,\"text\"]", sstr.str().c_str());
 }
 
+TEST_F(GivenArray, WhenGeneratingOutOfSequence) {
+    std::stringstream sstr;
+    json::data json;
+    json[0] = 1;
+    json[1] = 2;
+    json[3] = 3;
+    json[5] = "text";
+    sstr << json;
+    ASSERT_STREQ("[1,2,null,3,null,\"text\"]", sstr.str().c_str());
+}
+
 class GivenObject : public testing::Test { };
 
 TEST_F(GivenObject, WhenGenerating) {

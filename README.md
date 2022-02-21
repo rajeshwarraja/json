@@ -17,7 +17,7 @@ int main(int argc, char*argv[]) {
     emp["name"] = "Doe, John";
     emp["age"] = 30.5;
     emp["active"] = true;
-    auto &reportee = emp["reportee"];
+    auto& reportee = emp["reportee"];
     reportee[0] = "Emp 1";
     reportee[1] = "Emp 2";
     reportee[2] = "Emp 3";
@@ -47,3 +47,6 @@ The library provides stream manipulators `json::pretty` and `json::nopretty` to 
 
 ## License
 Refer [LICENSE](./LICENSE.md) for more information.
+
+## Release Notes
+Refer [NOTES](./doc/release_notes.md) for more information.
