@@ -1,11 +1,14 @@
 #include <json>
-#include <iostream>
+#include "version.h"
 
 int main(int argc, char* argv[]) {
+	std::clog
+		<< "Json Parser " << version << std::endl
+		<< "Awaiting input data..." << std::endl;
 	json::data json;
 	try {
 		std::cin >> json;
-		std::clog << json::pretty << json << std::endl;
+		std::cout << json::pretty << json << std::endl;
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Failed to parse json stream" << std::endl
@@ -13,6 +16,6 @@ int main(int argc, char* argv[]) {
 
 		return -1;
 	}
-	std::cout << "JSON stream parsed successfully" << std::endl;
+	std::clog << "JSON stream parsed successfully" << std::endl;
 	return 0;
 }
