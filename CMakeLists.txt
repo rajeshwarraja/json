@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.11)
-project(Json VERSION 1.0)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/build/modules")
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+project(Json VERSION 1.0.0)
+
+include(GitInformation)
+
+display_project_label()
 
 include_directories(include PUBLIC)
 
 add_subdirectory(parser)
 
-enable_testing()
 add_subdirectory(test)
