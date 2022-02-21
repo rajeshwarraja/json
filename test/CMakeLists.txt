@@ -22,6 +22,8 @@ aux_source_directory(src JSON_TEST_SRC)
 add_executable(testJson ${JSON_TEST_SRC})
 target_link_libraries(testJson gtest gtest_main)
 
+enable_testing()
+
 find_package(GTest QUIET)
 if(GTest_FOUND)
   gtest_discover_tests(testJson)
