@@ -1,6 +1,6 @@
 # Release Notes
 
-## v1.1 (pre-relase)
+## v1.1 (pre-release)
 Json data formatting "pretty" for output streams. Uses new line and indentation for elements in array and objects.
 
 ## v1.0
