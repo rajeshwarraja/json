@@ -62,7 +62,7 @@ namespace json::grammar {
 
 namespace json {
 	namespace formatter {
-		constexpr static uint8_t tab_width = 2;
+		constexpr static size_t tab_width = 2;
 		constexpr static std::ios_base::fmtflags pretty_flag = std::ios_base::fmtflags(0x9000);
 		const static int indent_depth = std::ios_base::xalloc();
 		long& indent(std::ostream& out) { return out.iword(indent_depth); }
@@ -99,7 +99,7 @@ namespace json {
 		data& operator[](int index) {
 			if (_type != _Type::Array) { reset(); _type = _Type::Array; }
 			if (_elements.size() < index)
-				_elements.resize(index + 1);
+				_elements.resize(index + size_t(1));
 			if (_elements.size() == index)
 				_elements.push_back(json::data());
 			return _elements[index];
@@ -212,7 +212,7 @@ namespace json {
 			case _Type::Object:
 				out << _beginObject;
 				formatter::indent(out) += 1;
-				std::for_each(_members.begin(), _members.end(), [&](const auto& pair) { if (pair != _members.front()) out << _valueSeparator; if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' '); out << _doubleQuotes << pair.first << _doubleQuotes << (pretty? u8" " : u8"") << _nameSeparator << (pretty? u8" " : u8"") << pair.second; });
+				std::for_each(_members.begin(), _members.end(), [&](const auto& pair) { if (pair != _members.front()) out << _valueSeparator; if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' '); out << _doubleQuotes << pair.first << _doubleQuotes << _nameSeparator << (pretty? u8" " : u8"") << pair.second; });
 				formatter::indent(out) -= 1;
 				if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' ');
 				out << _endObject;

@@ -4,6 +4,7 @@ project(JsonParser VERSION 1.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+get_git_version(GIT_VERSION)
 configure_file(
 	"${CMAKE_SOURCE_DIR}/build/version.c.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/version.c"
