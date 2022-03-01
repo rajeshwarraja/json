@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - '**.md'
       - 'doc/**'
+  workflow_dispatch:
 
 env:
   BUILD_TYPE: Release
