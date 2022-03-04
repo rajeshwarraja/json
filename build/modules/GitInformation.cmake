@@ -1,6 +1,6 @@
 function(_get_git_branch _branch)
-	if(NOT "$ENV{GITHUB_REF_NAME}" STREQUAL "")
-		set(${_branch} $ENV{GITHUB_REF_NAME} PARENT_SCOPE)
+	if(NOT "$ENV{GITVERSION_BRANCHNAME}" STREQUAL "")
+		set(${_branch} $ENV{GITVERSION_BRANCHNAME} PARENT_SCOPE)
 	else()
 		execute_process(
 			COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
@@ -12,44 +12,19 @@ function(_get_git_branch _branch)
 	endif()
 endfunction()
 
-function(_normalize_branch_name _out_name _in_name)
-	string(REGEX REPLACE "[^a-zA-Z0-9]" "" _out ${_in_name})
-	set(${_out_name} ${_out} PARENT_SCOPE)
+function(get_git_version _version)
+	if(NOT "$ENV{GITVERSION_SEMVER}" STREQUAL "")
+		set(${_version} "$ENV{GITVERSION_SEMVER}" PARENT_SCOPE)
+	else()
+		set(${_version} "0.0.0" PARENT_SCOPE)
+	endif()
 endfunction()
 
-function(get_git_version _version)
-	# endure project version is available
-	if("${PROJECT_VERSION}" STREQUAL "")
-		set(PROJECT_VERSION "0.0.0")
-	endif()
-
-	if(NOT "$ENV{GITHUB_RUN_NUMBER}" STREQUAL "")
-		set(NCOMMIT "$ENV{GITHUB_RUN_NUMBER}")
+function(get_git_assembly_version _version)
+	if(NOT "$ENV{GITVERSION_ASSEMBLYSEMFILEVER}" STREQUAL "")
+		set(${_version} "$ENV{GITVERSION_ASSEMBLYSEMFILEVER}" PARENT_SCOPE)
 	else()
-		execute_process(
-			COMMAND "${GIT_EXECUTABLE}" rev-list --count HEAD
-			WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-			OUTPUT_VARIABLE NCOMMIT
-			ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
-		)
-		if("${NCOMMIT}" STREQUAL "")
-			set(NCOMMIT "0")
-		endif()
-	endif()
-
-	# calculate suffix for GitFlow
-	_get_git_branch(GIT_BRANCH)
-	if(NOT ${GIT_BRANCH} STREQUAL "")
-		_normalize_branch_name(GIT_BRANCH_NORMALIZED ${GIT_BRANCH})
-		if("${GIT_BRANCH}" STREQUAL "main" OR "${GIT_BRANCH}" STREQUAL "master" OR "${GIT_BRANCH}" MATCHES "^release\/.+$")
-			math(EXPR BUILD_NUMBER "${NCOMMIT} + 100000")
-			set(${_version} "${PROJECT_VERSION}.${BUILD_NUMBER}" PARENT_SCOPE)
-		else()
-			math(EXPR BUILD_NUMBER "${NCOMMIT} + 10000")
-			set(${_version} "${PROJECT_VERSION}.${BUILD_NUMBER}-${GIT_BRANCH_NORMALIZED}" PARENT_SCOPE)
-		endif()
-	else()
-		set(${_version} "${PROJECT_VERSION}.${NCOMMIT}" PARENT_SCOPE)
+		set(${_version} "0.0.0.0" PARENT_SCOPE)
 	endif()
 endfunction()
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/build/modules")
 
-project(Json VERSION 1.0.0)
+project(Json)
 
 include(GitInformation)
 

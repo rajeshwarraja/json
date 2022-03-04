@@ -1,9 +1,3 @@
-cmake_minimum_required(VERSION 3.11)
-project(JsonTest)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
 if(WIN32)
   set(CMAKE_CXX_FLAGS_DEBUG "/MTd /Zi /Ob0 /Od /RTC1")
   set(CMAKE_CXX_FLAGS_RELEASE "/MT /O2 /Ob2 /DNDEBUG")
@@ -18,9 +12,10 @@ if(NOT googletest_POPULATED)
   add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 endif()
 
-aux_source_directory(src JSON_TEST_SRC)
+file(GLOB_RECURSE JSON_TEST_SRC src/*.cxx src/*.h)
 add_executable(testJson ${JSON_TEST_SRC})
 target_link_libraries(testJson gtest gtest_main)
+target_compile_features(testJson PRIVATE cxx_std_17)
 
 enable_testing()
 
