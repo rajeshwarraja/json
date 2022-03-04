@@ -36,7 +36,7 @@ jobs:
       uses: gittools/actions/gitversion/execute@v0.9.7
 
     - name: Environment
-      uses: set
+      run: set
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
