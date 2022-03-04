@@ -1,6 +1,6 @@
 function(_get_git_branch _branch)
-	if(NOT "$ENV{GITHUB_HEAD_REF}" STREQUAL "")
-		set(${_branch} $ENV{GITHUB_HEAD_REF} PARENT_SCOPE)
+	if(NOT "$ENV{GITHUB_REF_NAME}" STREQUAL "")
+		set(${_branch} $ENV{GITHUB_REF_NAME} PARENT_SCOPE)
 	else()
 		execute_process(
 			COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
