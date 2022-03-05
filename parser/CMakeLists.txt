@@ -1,5 +1,5 @@
 get_git_assembly_version(GIT_VERSION)
-get_git_commit(GIT_HASH)
+get_git_info(GIT_INFO)
 configure_file(
 	"${CMAKE_SOURCE_DIR}/build/version.c.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/version.c"

@@ -1,2 +1,2 @@
 const char version[] = "@GIT_VERSION@";
-const char githash[] = "@GIT_HASH@";
+const char gitinfo[] = "@GIT_INFO@";

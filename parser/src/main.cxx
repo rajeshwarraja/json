@@ -3,8 +3,7 @@
 
 int main(int argc, char* argv[]) {
 	std::clog
-		<< "Json Parser " << version << std::endl
-		<< "Hash " << githash << std::endl
+		<< "Json Parser " << gitinfo << std::endl
 		<< "Awaiting input data..." << std::endl;
 	json::data json;
 	try {
