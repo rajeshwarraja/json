@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.16)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/build/modules")
+include(GitInformation)
 
 project(Json)
-
-include(GitInformation)
 
 display_project_label()
 
