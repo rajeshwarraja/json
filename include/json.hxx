@@ -96,6 +96,17 @@ namespace json {
 		}
 		operator std::vector<data>() const { validate(_Type::Array); return _elements; }
 
+		size_t length() const {
+			if (_type != _Type::Array) throw std::invalid_argument("Unsupported object type; expected JSON array");
+			return _elements.size();
+		}
+
+		const data& operator[](int index) const {
+			if (_type != _Type::Array) throw std::invalid_argument("Unsupported object type; expected JSON array");
+			if (_elements.size() <= index) throw std::invalid_argument("Index out-of-bounds");
+			return _elements[index];
+		}
+
 		data& operator[](int index) {
 			if (_type != _Type::Array) { reset(); _type = _Type::Array; }
 			if (_elements.size() < index)
@@ -103,6 +114,18 @@ namespace json {
 			if (_elements.size() == index)
 				_elements.push_back(json::data());
 			return _elements[index];
+		}
+
+		bool has(const char* name) const {
+			const auto itr = std::find_if(_members.begin(), _members.end(), [&](const auto& pair) { return pair.first == name; });
+			return itr != _members.end();
+		}
+
+		const data& operator[](const char* name) const {
+			if (_type != _Type::Object) throw std::invalid_argument("Unsupported object type; expected JSON object");
+			const auto itr = std::find_if(_members.begin(), _members.end(), [&](const auto& pair) { return pair.first == name; });
+			if (itr == _members.end()) throw std::invalid_argument("Member does not exists");
+			return itr->second;
 		}
 
 		data& operator[](const char* name) {
@@ -125,6 +148,8 @@ namespace json {
 
 		friend std::ostream& operator<<(std::ostream& out, const data& json) { return json.toStream(out); }
 		friend std::istream& operator>>(std::istream& in, data& json) { return json.fromStream(in); }
+
+		static json::data emptyArray() { json::data arr; arr._type = _Type::Array; return arr; }
 
 	private:
 		_Type _type;

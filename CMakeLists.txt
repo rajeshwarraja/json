@@ -9,6 +9,7 @@ display_project_label()
 include_directories(include PUBLIC)
 
 add_subdirectory(parser)
+add_subdirectory(examples)
 
 enable_testing()
 add_subdirectory(test)

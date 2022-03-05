@@ -14,4 +14,5 @@ target_link_libraries(testJson gtest gtest_main)
 target_compile_features(testJson PRIVATE cxx_std_17)
 
 include(GoogleTest)
-gtest_discover_tests(testJson)
+gtest_discover_tests(testJson
+	XML_OUTPUT_DIR "${CMAKE_BINARY_DIR}/testreports")
