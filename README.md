@@ -1,5 +1,6 @@
 # JavaScript Object Notation Data Interchange Format Library
 The library implements [RFC8259](https://datatracker.ietf.org/doc/html/rfc8259) internet standard.
+[![CMake](https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml/badge.svg)](https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml)
 
 ## Getting Started
 The library provides `json::data` type which boxes numbers, strings, booleans, arrays and objects.
