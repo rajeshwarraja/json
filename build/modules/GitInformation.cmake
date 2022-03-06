@@ -1,3 +1,13 @@
+if(WIN32)
+	find_program(GITVERSION dotnet-gitversion)
+else()
+	find_program(GITVERSION gitversion)
+endif()
+
+if(NOT GITVERSION AND "$ENV{GITVERSION_SEMVER}" STREQUAL "")
+	message(WARNING "Install GitVersion CLI tool. https://gitversion.net/")
+endif()
+
 function(_get_git_branch _branch)
 	if(NOT "$ENV{GITVERSION_BRANCHNAME}" STREQUAL "")
 		set(${_branch} $ENV{GITVERSION_BRANCHNAME} PARENT_SCOPE)
@@ -16,7 +26,17 @@ function(get_git_version _version)
 	if(NOT "$ENV{GITVERSION_SEMVER}" STREQUAL "")
 		set(${_version} "$ENV{GITVERSION_SEMVER}" PARENT_SCOPE)
 	else()
-		set(${_version} "0.0.0" PARENT_SCOPE)
+		if(GITVERSION)
+			execute_process(
+				COMMAND ${GITVERSION} /showvariable SemVer
+				WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+				OUTPUT_VARIABLE GITVERSION_OUTPUT
+				ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+			set(${_version} ${GITVERSION_OUTPUT} PARENT_SCOPE)
+		else()
+			set(${_version} "0.0.0" PARENT_SCOPE)
+		endif()
 	endif()
 endfunction()
 
@@ -61,7 +81,17 @@ function(get_git_info _info)
 	if(NOT "$ENV{GITVERSION_INFORMATIONALVERSION}" STREQUAL "")
 		set(${_info} $ENV{GITVERSION_INFORMATIONALVERSION} PARENT_SCOPE)
 	else()
-		set(${_info} "development-build" PARENT_SCOPE)
+		if(GITVERSION)
+			execute_process(
+				COMMAND ${GITVERSION} /showvariable InformationalVersion
+				WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+				OUTPUT_VARIABLE GITVERSION_INFO
+				ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+			set(${_info} ${GITVERSION_INFO} PARENT_SCOPE)
+		else()
+			set(${_info} "" PARENT_SCOPE)
+		endif()
 	endif()
 endfunction()
 
@@ -72,9 +102,6 @@ function(display_project_label)
 	get_git_repository_url(GIT_REPO_URL)
 	message(STATUS "    Url: ${GIT_REPO_URL}")
 	_get_git_branch(GIT_BRANCH)
-	message(STATUS " Branch: ${GIT_BRANCH}")
-	get_git_commit(GIT_COMMIT)
-	message(STATUS " Commit: ${GIT_COMMIT}")
 	get_git_info(GIT_INFO)
 	message(STATUS "   Info: ${GIT_INFO}")
 endfunction()
