@@ -85,8 +85,8 @@ namespace Examples {
 			for (int i = 0; i < aeTitles.length(); ++i) {
 				const auto& t = aeTitles[i];
 				Config::AeTitle title;
-				title.title = t["title"];
-				title.ip = t["ip"];
+				title.title = (const char*)t["title"];
+				title.ip = (const char*)t["ip"];
 				title.port = (int)t["port"];
 				result.push_back(title);
 			}
