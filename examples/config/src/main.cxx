@@ -1,4 +1,5 @@
 #include "config.hxx"
+#include <version.h>
 
 using namespace Examples;
 
@@ -21,6 +22,8 @@ void display(const Config& config)
 }
 
 int main(int argc, char* argv[]) {
+	std::cout << "Configuration Example " << gitinfo << std::endl;
+
 	Config config;
 
 	display(config);
@@ -30,6 +33,8 @@ int main(int argc, char* argv[]) {
 
 	display(config);
 
+	config.setTitle("Application");
+	config.setBounds(Config::Rect(0, 0, 1024, 786));
 	config.setActivated(!config.activated());
 	config.clearAeTitles();
 	config.addAeTitle(Config::AeTitle{ "APP_TITLE", "192.0.0.2", 2020 });

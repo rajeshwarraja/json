@@ -28,9 +28,10 @@ namespace Examples {
 		bool save(const std::string& filename)
 		{
 			std::ofstream fout(filename);
-			fout << json::pretty << _data << std::ends;
+			fout << json::pretty << _data << std::flush;
 			const auto succeeded = fout.good();
 			fout.close();
+			const auto closeSucceeded = fout.good();
 			return succeeded;
 		}
 
@@ -84,8 +85,8 @@ namespace Examples {
 			for (int i = 0; i < aeTitles.length(); ++i) {
 				const auto& t = aeTitles[i];
 				Config::AeTitle title;
-				title.title = (const char*)(t["title"]);
-				title.ip = (const char*)(t["ip"]);
+				title.title = t["title"];
+				title.ip = t["ip"];
 				title.port = (int)t["port"];
 				result.push_back(title);
 			}
