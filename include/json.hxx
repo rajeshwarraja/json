@@ -237,7 +237,7 @@ namespace json {
 			case _Type::Object:
 				out << _beginObject;
 				formatter::indent(out) += 1;
-				std::for_each(_members.begin(), _members.end(), [&](const auto& pair) { if (pair != _members.front()) out << _valueSeparator; if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' '); out << _doubleQuotes << pair.first << _doubleQuotes << _nameSeparator << (pretty? u8" " : u8"") << pair.second; });
+				std::for_each(_members.begin(), _members.end(), [&](const auto& pair) { if (pair != _members.front()) out << _valueSeparator; if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' '); out << _doubleQuotes << pair.first << _doubleQuotes << _nameSeparator << (pretty? " " : "") << pair.second; });
 				formatter::indent(out) -= 1;
 				if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' ');
 				out << _endObject;
