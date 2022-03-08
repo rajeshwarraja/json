@@ -1,15 +1,14 @@
-cmake_minimum_required(VERSION 3.16)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build/modules")
-include(PreBuild)
+cmake_minimum_required(VERSION 3.20)
 
 project(Json)
 
-display_project_label()
+add_library(json INTERFACE)
+target_include_directories(json INTERFACE include/)
+target_compile_features(json INTERFACE cxx_std_17)
 
-include_directories(include PUBLIC)
+if(JSON_CI_PIPELINE)
+	add_subdirectory(examples)
 
-add_subdirectory(parser)
-add_subdirectory(examples)
-
-enable_testing()
-add_subdirectory(test)
+	enable_testing()
+	add_subdirectory(test)
+endif()
