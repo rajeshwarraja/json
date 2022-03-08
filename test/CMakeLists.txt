@@ -12,7 +12,7 @@ endif()
 
 file(GLOB_RECURSE JSON_TEST_SRC src/*.cxx src/*.h)
 
-add_executable(testJson ${JSON_TEST_SRC} "${CMAKE_BINARY_DIR}/version.c")
+add_executable(testJson ${JSON_TEST_SRC} "${CMAKE_CURRENT_BINARY_DIR}/version.c")
 target_link_libraries(testJson json gtest gtest_main)
 target_compile_features(testJson PRIVATE cxx_std_17)
 
