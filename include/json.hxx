@@ -89,7 +89,7 @@ namespace json {
 		bool toBool() const { validate(_Type::Boolean); return _value == grammar::_valueTrue; }
 		int toInt() const { validate(_Type::Number); return std::atoi(_value.c_str()); }
 		double toDouble() const { validate(_Type::Number); return std::atof(_value.c_str()); }
-		std::string toString() const {
+		const std::string& toString() const {
 			validate(_Type::String);
 			return _value;
 		}
