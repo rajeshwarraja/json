@@ -6,8 +6,7 @@ FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googlet
 
 FetchContent_GetProperties(googletest)
 if(NOT googletest_POPULATED)
-  FetchContent_Populate(googletest)
-  add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+  FetchContent_MakeAvailable(googletest)
 endif()
 
 file(GLOB_RECURSE JSON_TEST_SRC src/*.cxx src/*.h)
