@@ -98,8 +98,7 @@ namespace json {
 		operator int() const { return toInt(); }
 		operator double() const { return toDouble(); }
 		operator const char* () const {
-			if (_type == _Type::Null) return nullptr;
-			return toString().c_str(); 
+			return _Type::Null == _type ? nullptr : toString().c_str();
 		}
 		operator std::vector<data>() const { validate(_Type::Array); return _elements; }
 
