@@ -3,6 +3,7 @@
 ## v1.1 (pre-release)
 1. Json data formatting "pretty" for output streams. Uses new line and indentation for elements in array and objects.
 1. Supports adding elements to array out of sequence. e.g. insert items in 0 index and 10 index without adding anything in between.
+1. Explicit cast methods added for data types. e.g. (toString, toInt, toDouble, toBool)
 
 ## v1.0
 Json data serialization, de-serialization via C++ streams. 

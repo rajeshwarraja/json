@@ -5,17 +5,18 @@
 #include <filesystem>
 
 namespace Examples {
-	class Config {
+	class Config final {
 	public:
 		explicit Config() = default;
 		explicit Config(const std::string& filename)
 		{
-			load(filename);
+			if (!load(filename))
+				std::clog << "Unable to load file " << filename << std::endl;
 		}
 
 		~Config() = default;
 
-		bool load(const std::string& filename)
+		[[nodiscard]] bool load(const std::string& filename)
 		{
 			if (std::filesystem::exists(filename)) {
 				std::ifstream(filename) >> _data;
@@ -25,7 +26,7 @@ namespace Examples {
 			return false;
 		}
 
-		bool save(const std::string& filename)
+		[[nodiscard]] bool save(const std::string& filename)
 		{
 			std::ofstream fout(filename);
 			fout << json::pretty << _data << std::flush;
@@ -36,7 +37,7 @@ namespace Examples {
 		}
 
 		// Title
-		const char* title() const { return _data.has("title")? (const char*)_data["title"] : ""; }
+		std::string title() const { return _data.has("title") ? _data["title"].toString() : ""; }
 		void setTitle(const std::string& title) { _data["title"] = title.c_str(); }
 
 		// Bounds
@@ -85,9 +86,9 @@ namespace Examples {
 			for (int i = 0; i < aeTitles.length(); ++i) {
 				const auto& t = aeTitles[i];
 				Config::AeTitle title;
-				title.title = (const char*)t["title"];
-				title.ip = (const char*)t["ip"];
-				title.port = (int)t["port"];
+				title.title = t["title"].toString();
+				title.ip = t["ip"].toString();
+				title.port = t["port"].toInt();
 				result.push_back(title);
 			}
 			return result;
