@@ -2,16 +2,18 @@ name: 'Build & Test'
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
     paths-ignore:
-      - '**.md'
       - 'doc/**'
+      - '**.md'
+      - '**.asciidoc'
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
     types: [opened, synchronize, reopened]
     paths-ignore:
-      - '**.md'
       - 'doc/**'
+      - '**.md'
+      - '**.asciidoc'
   workflow_dispatch:
 
 env:
@@ -23,17 +25,17 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.7
+      uses: gittools/actions/gitversion/setup@v0.9.13
       with:
         versionSpec: '5.x'
 
     - name: Determine Version
-      uses: gittools/actions/gitversion/execute@v0.9.7
+      uses: gittools/actions/gitversion/execute@v0.9.13
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
