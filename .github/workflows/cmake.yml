@@ -2,13 +2,13 @@ name: 'Build & Test'
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, support/*, feature/*, hotfix/*, release/* ]
     paths-ignore:
       - 'doc/**'
       - '**.md'
       - '**.asciidoc'
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, support/* ]
     types: [opened, synchronize, reopened]
     paths-ignore:
       - 'doc/**'
