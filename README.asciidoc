@@ -4,7 +4,7 @@
 
 The library implements link:https://datatracker.ietf.org/doc/html/rfc8259[RFC8259] internet standard.
 
-image:https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml/badge.svg[link:https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml[Build & Test]]
+image::https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml/badge.svg[link=https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml[Build & Test]]
 
 == Getting Started
 The library provides `json::data` type which boxes numbers, strings, booleans, arrays and objects.
