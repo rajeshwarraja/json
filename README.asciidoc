@@ -1,15 +1,19 @@
-# JavaScript Object Notation Data Interchange Format Library
-The library implements [RFC8259](https://datatracker.ietf.org/doc/html/rfc8259) internet standard.
+:reproducible:
+:icons: font
+:doctitle: JavaScript Object Notation Data Interchange Format Library
 
-[![Build & Test](https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml/badge.svg)](https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml)
+The library implements link:https://datatracker.ietf.org/doc/html/rfc8259[RFC8259] internet standard.
 
-## Getting Started
+image:https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml/badge.svg[link=https://github.com/rajeshwarraja/json/actions/workflows/cmake.yml]
+
+== Getting Started
 The library provides `json::data` type which boxes numbers, strings, booleans, arrays and objects.
 
 The instances of type `json::data` is serializable to and from C++ stream.
 
-The following program:
-``` c++ 
+[,c++]
+.The following program:
+----
 #include <json>
 
 int main(int argc, char*argv[]) {
@@ -26,9 +30,11 @@ int main(int argc, char*argv[]) {
     std::cout << json::pretty << json << std::endl;
     return 0;
 }
-```
-outputs:
-``` json
+----
+
+[,json]
+.outputs:
+----
 {
   "employee" : {
     "id" : 1,
@@ -42,13 +48,13 @@ outputs:
     ]
   }
 }
-```
+----
 
-## Pretty Output Formatting
+== Pretty Output Formatting
 The library provides stream manipulators `json::pretty` and `json::nopretty` to toggle on and off pretty json output serialization respectively. The pretty json output serialization adds new line to object members and array elements, and each json object hierarchy is prefixed with two spaces.
 
-## License
-Refer [LICENSE](./LICENSE.md) for more information.
+== License
+Refer link:./LICENSE.md[LICENSE] for more information.
 
-## Release Notes
-Refer [NOTES](./doc/release_notes.md) for more information.
+== Release Notes
+Refer link:./doc/release_notes.md[NOTES] for more information.
