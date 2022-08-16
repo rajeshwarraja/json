@@ -1,4 +1,4 @@
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/build/modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts/modules")
 include(PreBuild)
 
 include(FetchContent)
