@@ -42,3 +42,10 @@ jobs:
 
     - name: Test
       run: ctest --preset="Linux-x64-Debug-Test"
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        xunit_files: "out/build/Linux-x64-Debug/testreports/**/*.xml"
+
