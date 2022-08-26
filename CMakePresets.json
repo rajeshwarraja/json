@@ -7,21 +7,34 @@
     },
     "configurePresets": [
         {
-            "name": "default",
+            "name": "Windows-x64-Debug",
+            "displayName": "Win64 Debug",
+            "description": "Windows 64bit Debug",
             "generator": "Ninja",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            },
             "binaryDir": "${sourceDir}/out/default"
         }
     ],
     "buildPresets": [
         {
-            "name": "default",
-            "configurePreset": "default"
+            "name": "Windows-x64-Debug-Build",
+            "displayName": "Win64 Debug Build",
+            "description": "Windows 64bit Debug Build",
+            "configurePreset": "Windows-x64-Debug"
         }
     ],
     "testPresets": [
         {
-            "name": "default",
-            "configurePreset": "default"
+            "name": "Windows-x64-Debug-Test",
+            "displayName": "Win64 Debug Test",
+            "description": "Windows 64bit Debug Test",
+            "configurePreset": "Windows-x64-Debug"
         }
     ],
     "vendor": {
