@@ -1,9 +1,7 @@
 #include <json>
-#include "version.h"
 
 int main(int argc, char* argv[]) {
 	std::clog
-		<< "Json Parser " << gitinfo << std::endl
 		<< "Awaiting input data..." << std::endl;
 	json::data json;
 	try {

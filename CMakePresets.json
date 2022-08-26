@@ -1,8 +1,8 @@
 {
-    "version": 4,
+    "version": 2,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 23,
+        "minor": 20,
         "patch": 0
     },
     "configurePresets": [
@@ -18,7 +18,17 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             },
-            "binaryDir": "${sourceDir}/out/default"
+            "binaryDir": "${sourceDir}/out/build/${presetName}"
+        },
+        {
+            "name": "Linux-x64-Debug",
+            "displayName": "Linux x64 Debug",
+            "description": "Linux 64bit Debug",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            },
+            "binaryDir": "${sourceDir}/out/build/${presetName}"
         }
     ],
     "buildPresets": [
@@ -27,6 +37,12 @@
             "displayName": "Win64 Debug Build",
             "description": "Windows 64bit Debug Build",
             "configurePreset": "Windows-x64-Debug"
+        },
+        {
+            "name": "Linux-x64-Debug-Build",
+            "displayName": "Linux Debug Build",
+            "description": "Linux 64bit Debug Build",
+            "configurePreset": "Linux-x64-Debug"
         }
     ],
     "testPresets": [
@@ -35,6 +51,12 @@
             "displayName": "Win64 Debug Test",
             "description": "Windows 64bit Debug Test",
             "configurePreset": "Windows-x64-Debug"
+        },
+        {
+            "name": "Linux-x64-Debug-Test",
+            "displayName": "Linux Debug Test",
+            "description": "Linux 64bit Debug Test",
+            "configurePreset": "Linux-x64-Debug"
         }
     ],
     "vendor": {

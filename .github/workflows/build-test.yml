@@ -35,10 +35,10 @@ jobs:
       uses: gittools/actions/gitversion/execute@v0.9.13
 
     - name: Configure CMake
-      run: cmake --preset="Windows-x64-Debug"
+      run: cmake --preset="Linux-x64-Debug"
 
     - name: Build
-      run: cmake --build --preset="Windows-x64-Debug-Build"
+      run: cmake --build --preset="Linux-x64-Debug-Build"
 
     - name: Test
-      run: ctest --preset="Windows-x64-Debug-Test"
+      run: ctest --preset="Linux-x64-Debug-Test"

@@ -1,2 +1,0 @@
-const char version[] = "@GIT_VERSION@";
-const char gitinfo[] = "@GIT_INFO@";
