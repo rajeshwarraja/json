@@ -49,3 +49,6 @@ jobs:
       with:
         junit_files: "out/build/Linux-x64-Debug/testreports/**/*.xml"
 
+    - name: Create Build Image
+      run: docker build scripts/docker -t buildimage -m 2GB
+
