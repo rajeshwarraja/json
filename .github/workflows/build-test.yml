@@ -22,15 +22,6 @@ jobs:
 
     env:
       PAKCAGE_CHANNEL: "unknown"
-    env:
-      if: github.ref == 'main'
-      PACKAGE_CHANNEL: 'stable'
-    env:
-      if: github.ref == 'develop'
-      PACKAGE_CHANNEL: 'alpha'
-    env:
-      if: startsWith(github.ref, "release/")
-      PACKAGE_CHANNEL: 'beta'
 
     steps:
     - name: Checkout
@@ -48,6 +39,18 @@ jobs:
 
     - name: Determine Version
       uses: gittools/actions/gitversion/execute@v0.9.13
+
+    - name: Channel for Beta
+      run: echo "PAKCAGE_CHANNEL=beta" >> $GITHUB_ENV
+      if: startswith(github.ref, 'refs/release/')
+
+    - name: Channel for Alpha
+      run: echo "PAKCAGE_CHANNEL=alpha" >> $GITHUB_ENV
+      if: github.ref == 'refs/develop'
+
+    - name: Channel for Release
+      run: echo "PAKCAGE_CHANNEL=stable" >> $GITHUB_ENV
+      if: github.ref == 'refs/main'
 
     - name: Build
       run: >-
