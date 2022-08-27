@@ -65,10 +65,10 @@ jobs:
 
     - name: Create Release Tag
       if: github.ref == 'refs/heads/main'
-      uses: laputansoft/github-tag-action@v4.6
+      uses: mathieudutour/github-tag-action@v6.0
       with:
-        github_token: ${{env.GITHUB_TOKEN}}
-        tag: ${{env.GITVERSION_MAJORMINORPATCH}}
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        custom_tag: ${{env.GITVERSION_MAJORMINORPATCH}}
 
 
     # - name: Publish Test Results
