@@ -1,7 +1,6 @@
-include(PreBuild)
+project(JsonConfig)
 
 file(GLOB_RECURSE JSON_PARSER_SRC src/*)
 
-add_executable(config ${JSON_PARSER_SRC} ${CMAKE_CURRENT_BINARY_DIR}/version.c)
-target_compile_features(config PRIVATE cxx_std_17)
+add_executable(config ${JSON_PARSER_SRC})
 target_link_libraries(config json)

@@ -1,0 +1,70 @@
+name: 'Build & Test'
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - 'doc/**'
+      - '**.md'
+      - '**.asciidoc'
+  pull_request:
+    branches: [ main, develop, support/* ]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'doc/**'
+      - '**.md'
+      - '**.asciidoc'
+  workflow_dispatch:
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+
+    env:
+      PAKCAGE_CHANNEL: "unknown"
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.13
+      with:
+        versionSpec: '5.x'
+
+    - name: Create Build Image
+      run: docker build scripts/docker -t buildimage -m 2GB
+
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@v0.9.13
+
+    - name: Channel for Beta
+      run: echo "PAKCAGE_CHANNEL=beta" >> $GITHUB_ENV
+      if: startswith(github.ref, 'refs/heads/release/')
+
+    - name: Channel for Alpha
+      run: echo "PAKCAGE_CHANNEL=alpha" >> $GITHUB_ENV
+      if: github.ref == 'refs/heads/develop'
+
+    - name: Channel for Release
+      run: echo "PAKCAGE_CHANNEL=stable" >> $GITHUB_ENV
+      if: github.ref == 'refs/heads/main'
+
+    - name: Build
+      run: >-
+        docker 
+        run --rm 
+        -v "$(pwd):/repo" 
+        -w /repo 
+        --name buildos buildimage 
+        conan create . --user rajeshwarraja 
+        --channel ${{env.PAKCAGE_CHANNEL}} 
+        --version ${{env.GITVERSION_MAJORMINORPATCH}}
+
+    # - name: Publish Test Results
+    #   uses: EnricoMi/publish-unit-test-result-action@v2
+    #   if: always()
+    #   with:
+    #     junit_files: "out/build/Linux-x64-Debug/testreports/**/*.xml"

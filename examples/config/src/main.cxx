@@ -1,5 +1,4 @@
 #include "config.hxx"
-#include <version.h>
 
 using namespace Examples;
 
@@ -22,7 +21,6 @@ void display(const Config& config)
 }
 
 int main(int argc, char* argv[]) {
-	std::cout << "Configuration Example " << gitinfo << std::endl;
 
 	Config config;
 
