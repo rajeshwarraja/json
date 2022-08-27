@@ -21,8 +21,16 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      if: github.event_name == 'pull_request'
-      PAKCAGE_CHANNEL: "pr"
+      PAKCAGE_CHANNEL: "unknown"
+    env:
+      if: github.ref == 'main'
+      PACKAGE_CHANNEL: 'stable'
+    env:
+      if: github.ref == 'develop'
+      PACKAGE_CHANNEL: 'alpha'
+    env:
+      if: startsWith(github.ref, "release/")
+      PACKAGE_CHANNEL: 'beta'
 
     steps:
     - name: Checkout
