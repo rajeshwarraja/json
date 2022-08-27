@@ -17,8 +17,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  linux-build:
     runs-on: ubuntu-latest
+
+    env:
+      if: github.event_name == 'pull_request'
+      PAKCAGE_CHANNEL: "pr"
 
     steps:
     - name: Checkout
@@ -45,7 +49,7 @@ jobs:
         -w /repo 
         --name buildos buildimage 
         conan create . --user rajeshwarraja 
-        --channel ${{env.GITVERSION_PRERELEASETAG}} 
+        --channel ${{env.PAKCAGE_CHANNEL}} 
         --version ${{env.GITVERSION_MAJORMINORPATCH}}
 
     # - name: Publish Test Results
