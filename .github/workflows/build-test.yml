@@ -42,15 +42,15 @@ jobs:
 
     - name: Channel for Beta
       run: echo "PAKCAGE_CHANNEL=beta" >> $GITHUB_ENV
-      if: startswith(github.ref, 'refs/release/')
+      if: startswith(github.ref, 'refs/heads/release/')
 
     - name: Channel for Alpha
       run: echo "PAKCAGE_CHANNEL=alpha" >> $GITHUB_ENV
-      if: github.ref == 'refs/develop'
+      if: github.ref == 'refs/heads/develop'
 
     - name: Channel for Release
       run: echo "PAKCAGE_CHANNEL=stable" >> $GITHUB_ENV
-      if: github.ref == 'refs/main'
+      if: github.ref == 'refs/heads/main'
 
     - name: Build
       run: >-
