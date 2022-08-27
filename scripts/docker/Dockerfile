@@ -9,4 +9,6 @@ RUN dnf clean all -y
 RUN dnf install -y python3-pip
 RUN pip install conan --pre
 
+RUN conan profile detect
+
 CMD ["bash"]
