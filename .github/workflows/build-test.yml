@@ -2,7 +2,7 @@ name: 'Build & Test'
 
 on:
   push:
-    branches: [ main, develop, support/*, feature/*, hotfix/*, release/* ]
+    branches: [ main, develop ]
     paths-ignore:
       - 'doc/**'
       - '**.md'
