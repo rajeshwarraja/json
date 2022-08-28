@@ -4,7 +4,7 @@ from conan.errors import ConanInvalidConfiguration
 
 class JsonConan(ConanFile):
     name = "json"
-    license = "Private"
+    license = "MIT"
     url = "auto"
 
     settings = "os", "compiler", "build_type", "arch"
