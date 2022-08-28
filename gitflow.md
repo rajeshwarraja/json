@@ -1,3 +1,5 @@
+
+``` mermaid
 gitGraph
   commit id: "1.2.0" tag: "v1.2.0"
   branch develop
@@ -33,3 +35,4 @@ gitGraph
   commit id: "1.3.1-beta.1"
   checkout support/1.3
   merge hotfix/1.3.1 tag: "v1.3.1"
+  ```
