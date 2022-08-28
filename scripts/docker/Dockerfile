@@ -9,8 +9,6 @@ RUN dnf clean all -y
 RUN dnf install -y python3-pip
 RUN pip install conan --pre
 
-RUN conan profile detect
-
-COPY profiles /root/.conan2/profiles
+ADD profiles /root/.conan2/profiles
 
 CMD ["bash"]
