@@ -1,5 +1,22 @@
 
 ``` mermaid
+%%{ init: {
+  "theme": "default",
+  "themeVariables": {
+    "git0": "#00ff00",
+    "git1": "#00ff00",
+    "git2": "#00ff00",
+    "git3": "#ff0000",
+    "git4": "#ff0000",
+    "git5": "#ff0000",
+    "git6": "#ff0000",
+    "git7": "#ff0000"
+  },
+  "gitGraph": {
+    "showCommitLabel": true
+  }
+}
+}%%
 gitGraph
   commit id: "1.2.0" tag: "v1.2.0"
   branch develop
