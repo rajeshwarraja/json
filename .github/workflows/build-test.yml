@@ -20,8 +20,7 @@ jobs:
   linux-build:
     strategy:
       matrix:
-        config: [ "Debug", "Release" ] 
-        arch: [ "x86", "x86_64" ]
+        profile: [ "debug-x64", "release-x64" ]
     runs-on: ubuntu-latest
 
     env:
@@ -66,8 +65,7 @@ jobs:
         conan create . --user rajeshwarraja 
         --channel ${{env.PAKCAGE_CHANNEL}} 
         --version ${{env.GITVERSION_MAJORMINORPATCH}}
-        -s build_type=${{matrix.config}}
-        -s arch=${{matrix.arch}}
+        --profile:build=${{matrix.profile}}
 
     - name: Create Release Tag
       if: github.ref == 'refs/heads/main'
