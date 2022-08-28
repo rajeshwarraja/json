@@ -11,4 +11,6 @@ RUN pip install conan --pre
 
 RUN conan profile detect
 
+ADD profiles /root/.conan2/profiles
+
 CMD ["bash"]
