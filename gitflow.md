@@ -4,7 +4,7 @@
   "theme": "default",
   "themeVariables": {
     "git0": "#00ff00",
-    "git1": "#ff0000",
+    "git1": "#00ff00",
     "git2": "#00ff00",
     "git3": "#ff0000",
     "git4": "#ff0000",
