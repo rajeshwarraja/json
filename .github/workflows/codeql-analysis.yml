@@ -21,7 +21,7 @@ on:
       - '**.adoc'
       - '**.md'
       - 'doc/**'
-      - '.github/workflow/**'
+      - '.github/workflows/**'
   schedule:
     - cron: '20 16 * * 2'
 

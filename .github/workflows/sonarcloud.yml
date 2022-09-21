@@ -37,7 +37,7 @@ on:
       - '**.adoc'
       - '**.md'
       - 'doc/**'
-      - '.github/workflow/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 permissions:

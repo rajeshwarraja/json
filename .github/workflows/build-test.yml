@@ -37,7 +37,7 @@ jobs:
       uses: rajeshwarraja/spdx-generator@v1.2
 
     - name: SPDX File Location
-      run: echo "File - ${{steps.spdx.filepath}}"
+      run: echo "File - ${{steps.spdx.outputs.filepath}}"
 
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.13
