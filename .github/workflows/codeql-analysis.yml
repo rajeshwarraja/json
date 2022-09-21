@@ -17,6 +17,11 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "develop" ]
+    paths-ignore:
+      - '**.adoc'
+      - '**.md'
+      - 'doc/**'
+      - '.github/workflow/**'
   schedule:
     - cron: '20 16 * * 2'
 

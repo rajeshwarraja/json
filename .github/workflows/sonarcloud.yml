@@ -33,6 +33,11 @@ on:
     branches: [ "develop", main ]
   pull_request:
     branches: [ "develop" ]
+    paths-ignore:
+      - '**.adoc'
+      - '**.md'
+      - 'doc/**'
+      - '.github/workflow/**'
   workflow_dispatch:
 
 permissions:
