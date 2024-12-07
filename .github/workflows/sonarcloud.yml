@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-# This workflow helps you trigger a SonarCloud analysis of your code and populates 
+# This workflow helps you trigger a SonarCloud analysis of your code and populates
 # GitHub Code Scanning alerts with the vulnerabilities found.
 # Free for open source project.
 
@@ -11,16 +11,16 @@
 
 # 2. Import your project on SonarCloud
 #     * Add your GitHub organization first, then add your repository as a new project.
-#     * Please note that many languages are eligible for automatic analysis, 
+#     * Please note that many languages are eligible for automatic analysis,
 #       which means that the analysis will start automatically without the need to set up GitHub Actions.
 #     * This behavior can be changed in Administration > Analysis Method.
-# 
+#
 # 3. Follow the SonarCloud in-product tutorial
 #     * a. Copy/paste the Project Key and the Organization Key into the args parameter below
 #          (You'll find this information in SonarCloud. Click on "Information" at the bottom left)
 #
 #     * b. Generate a new token and add it to your Github repository's secrets using the name SONAR_TOKEN
-#          (On SonarCloud, click on your avatar on top-right > My account > Security 
+#          (On SonarCloud, click on your avatar on top-right > My account > Security
 #           or go directly to https://sonarcloud.io/account/security/)
 
 # Feel free to take a look at our documentation (https://docs.sonarcloud.io/getting-started/github/)
@@ -30,9 +30,9 @@ name: SonarCloud analysis
 
 on:
   push:
-    branches: [ "develop", main ]
+    branches: ["develop", main]
   pull_request:
-    branches: [ "develop" ]
+    branches: ["develop"]
   workflow_dispatch:
 
 permissions:
@@ -40,20 +40,22 @@ permissions:
 
 jobs:
   Analysis:
+    # don't run this job for dependabot PRs
+    if: "github.actor != 'dependabot[bot]'"
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Analyze with SonarCloud         
+      - name: Analyze with SonarCloud
 
         # You can pin the exact commit or the version.
         # uses: SonarSource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a
         uses: SonarSource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
         with:
           # Additional arguments for the sonarcloud scanner
-          args:             
+          args:
             # Unique keys of your project and organization. You can find them in SonarCloud > Information (bottom-left menu)
             # mandatory
             -Dsonar.projectKey=rajeshwarraja_json
@@ -65,4 +67,4 @@ jobs:
             # Comma-separated paths to directories containing test source files.
             #-Dsonar.tests= # optional. For more info about Code Coverage, please refer to https://docs.sonarcloud.io/enriching/test-coverage/overview/
             # Adds more detail to both client and server-side analysis logs, activating DEBUG mode for the scanner, and adding client-side environment variables and system properties to the server-side log of analysis report processing.
-            #-Dsonar.verbose= # optional, default is false   
+            #-Dsonar.verbose= # optional, default is false
