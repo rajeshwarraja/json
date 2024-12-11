@@ -2,7 +2,7 @@ name: 'Build & Test'
 
 on:
   push:
-    branches: [ main, develop, release/* ]
+    branches: [ main, develop, support/* ]
     paths-ignore:
       - 'doc/**'
       - '**.md'
@@ -64,7 +64,7 @@ jobs:
         --name buildos buildimage 
         conan create . --user rajeshwarraja 
         --channel ${{env.PAKCAGE_CHANNEL}} 
-        --version ${{env.GITVERSION_MAJORMINORPATCH}}
+        --version ${{env.GitVersion_MajorMinorPatch}}
         --profile:build=${{matrix.profile}}
 
     - name: Create Release Tag
