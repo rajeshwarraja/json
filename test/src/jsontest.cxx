@@ -57,7 +57,10 @@ class GivenInteger : public testing::TestWithParam<int> { };
 INSTANTIATE_TEST_SUITE_P(When, GivenInteger, testing::Values(
     +100,
     0,
-    -100
+    -100,
+    INT64_MAX,
+    INT64_MIN,
+    UINT64_MAX    
 ));
 
 TEST_P(GivenInteger, WhenCreating) {
@@ -130,6 +133,16 @@ TEST_P(GivenString, WhenParsing) {
     json::data jsonParsed;
     sstr >> jsonParsed;
     ASSERT_EQ(json, jsonParsed);
+}
+
+TEST_P(GivenString, WhenParsingString) {
+    std::string expected = GetParam();
+    std::stringstream sstr;
+    json::data json(expected);
+    sstr << json;
+    json::data jsonParsed;
+    sstr >> jsonParsed;
+    ASSERT_EQ(expected, jsonParsed.toString());
 }
 
 class GivenArray : public testing::Test { };
