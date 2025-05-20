@@ -96,7 +96,7 @@ namespace json {
 		int toInt() const { validate(_Type::Number); return std::atoi(_value.c_str()); }
 		double toDouble() const { validate(_Type::Number); return std::atof(_value.c_str()); }
 		int64_t toInt64() const { validate(_Type::Number); return std::atoll(_value.c_str()); }
-		uint64_t toUint64() const { validate(_Type::Number); return std::atoll(_value.c_str()); }
+		uint64_t toUint64() const { validate(_Type::Number); return std::stoull(_value.c_str()); }
 		const std::string& toString() const {
 			validate(_Type::String);
 			return _value;

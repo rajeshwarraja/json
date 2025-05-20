@@ -57,10 +57,7 @@ class GivenInteger : public testing::TestWithParam<int> { };
 INSTANTIATE_TEST_SUITE_P(When, GivenInteger, testing::Values(
     +100,
     0,
-    -100,
-    INT64_MAX,
-    INT64_MIN,
-    UINT64_MAX    
+    -100
 ));
 
 TEST_P(GivenInteger, WhenCreating) {
@@ -77,6 +74,67 @@ TEST_P(GivenInteger, WhenGenerating) {
 }
 
 TEST_P(GivenInteger, WhenParsing) {
+    const auto expected = GetParam();
+    std::stringstream sstr;
+    json::data json(expected);
+    sstr << json;
+    json::data jsonParsed;
+    sstr >> jsonParsed;
+    ASSERT_EQ(json, jsonParsed);
+}
+
+class GivenInteger64 : public testing::TestWithParam<int64_t> { };
+
+INSTANTIATE_TEST_SUITE_P(When, GivenInteger64, testing::Values(
+    INT64_MAX,
+    0,
+    INT64_MIN
+));
+
+TEST_P(GivenInteger64, WhenCreating) {
+    json::data json(GetParam());
+    ASSERT_EQ(GetParam(), (int64_t)json) << "Json data is not "  << GetParam();
+}
+
+TEST_P(GivenInteger64, WhenGenerating) {
+    const auto expected = GetParam();
+    json::data json(expected);
+    std::stringstream sstr;
+    sstr << json;
+    ASSERT_STREQ(std::to_string(expected).c_str(), sstr.str().c_str());
+}
+
+TEST_P(GivenInteger64, WhenParsing) {
+    const auto expected = GetParam();
+    std::stringstream sstr;
+    json::data json(expected);
+    sstr << json;
+    json::data jsonParsed;
+    sstr >> jsonParsed;
+    ASSERT_EQ(json, jsonParsed);
+}
+
+class GivenUnsignedInteger64 : public testing::TestWithParam<uint64_t> { };
+
+INSTANTIATE_TEST_SUITE_P(When, GivenUnsignedInteger64, testing::Values(
+    UINT64_MAX,
+    0
+));
+
+TEST_P(GivenUnsignedInteger64, WhenCreating) {
+    json::data json(GetParam());
+    ASSERT_EQ(GetParam(), (uint64_t)json) << "Json data is not "  << GetParam();
+}
+
+TEST_P(GivenUnsignedInteger64, WhenGenerating) {
+    const auto expected = GetParam();
+    json::data json(expected);
+    std::stringstream sstr;
+    sstr << json;
+    ASSERT_STREQ(std::to_string(expected).c_str(), sstr.str().c_str());
+}
+
+TEST_P(GivenUnsignedInteger64, WhenParsing) {
     const auto expected = GetParam();
     std::stringstream sstr;
     json::data json(expected);
