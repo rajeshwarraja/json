@@ -85,10 +85,18 @@ namespace json {
 		data& operator=(int number) { set(number); return *this; }
 		data(double number) { operator=(number); }
 		data& operator=(double number) { set(number); return *this; }
+		data(int64_t number) { operator=(number); }
+		data& operator=(int64_t number) { set(number); return *this; }
+		data(uint64_t number) { operator=(number); }
+		data& operator=(uint64_t number) { set(number); return *this; }
+		data(const std::string& text) { operator=(text); }
+		data& operator=(const std::string& text) { set(text.c_str()); return *this; }
 
 		bool toBool() const { validate(_Type::Boolean); return _value == grammar::_valueTrue; }
 		int toInt() const { validate(_Type::Number); return std::atoi(_value.c_str()); }
 		double toDouble() const { validate(_Type::Number); return std::atof(_value.c_str()); }
+		int64_t toInt64() const { validate(_Type::Number); return std::atoll(_value.c_str()); }
+		uint64_t toUint64() const { validate(_Type::Number); return std::atoll(_value.c_str()); }
 		const std::string& toString() const {
 			validate(_Type::String);
 			return _value;
@@ -97,6 +105,8 @@ namespace json {
 		operator bool() const { return toBool(); }
 		operator int() const { return toInt(); }
 		operator double() const { return toDouble(); }
+		operator int64_t() const { return toInt64(); }
+		operator uint64_t() const { return toUint64(); }
 		operator const char* () const {
 			return _Type::Null == _type ? nullptr : toString().c_str();
 		}
@@ -202,6 +212,18 @@ namespace json {
 		}
 
 		inline void set(double number) {
+			reset();
+			_type = _Type::Number;
+			_value = std::to_string(number);
+		}
+
+		inline void set(int64_t number) {
+			reset();
+			_type = _Type::Number;
+			_value = std::to_string(number);
+		}
+
+		inline void set(uint64_t number) {
 			reset();
 			_type = _Type::Number;
 			_value = std::to_string(number);
