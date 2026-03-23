@@ -2,7 +2,7 @@
 // https://datatracker.ietf.org/doc/html/rfc8259
 //
 // The MIT License
-// Copyright © 2022 Rajeshwar Raja
+// Copyright © 2026 Rajeshwar Raja
 // Permission is hereby granted, free of charge, to any person obtaining a copy of 
 // this software and associated documentation files (the “Software”), to deal in the Software 
 // without restriction, including without limitation the rights to use, copy, modify, 
@@ -20,9 +20,10 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef _JSON_H_
-#define _JSON_H_
+#ifndef JSON_H
+#define JSON_H
 
+#include <cstdint>
 #include <regex>
 #include <string>
 #include <vector>
@@ -47,8 +48,8 @@ namespace json::grammar {
 
 	// Digit
 	constexpr const char* _digitStart = "+\\-\\d";
-	constexpr const char* _digit = "+\\-\\d\\.eE";
-	constexpr const char* _digitPattern = "[+-]?\\d+(?:(?:[eE][+-]?|\\.)\\d+)?";
+	constexpr const char* _digit = R"(+\-\d\.eE)";
+	constexpr const char* _digitPattern = R"([+-]?\d+(?:(?:[eE][+-]?|\.)\d+)?)";
 
 	// String
 	constexpr const char* _doubleQuotes = "\"";
@@ -63,7 +64,7 @@ namespace json::grammar {
 namespace json {
 	namespace formatter {
 		constexpr static size_t tab_width = 2;
-		constexpr static std::ios_base::fmtflags pretty_flag = std::ios_base::fmtflags(0x9000);
+		constexpr static std::ios_base::fmtflags pretty_flag = static_cast<std::ios_base::fmtflags>(0x9000);
 		const static int indent_depth = std::ios_base::xalloc();
 		inline long& indent(std::ostream& out) { return out.iword(indent_depth); }
 	}
@@ -71,7 +72,7 @@ namespace json {
 	inline std::ostream& nopretty(std::ostream& out) { out.unsetf(formatter::pretty_flag); return out; }
 
 	class data {
-		enum class _Type { Null, Boolean, Object, Array, Number, String };
+		enum class Type { Null, Boolean, Object, Array, Number, String };
 	public:
 		data() { reset(); }
 		~data() = default;
@@ -92,13 +93,13 @@ namespace json {
 		data(const std::string& text) { operator=(text); }
 		data& operator=(const std::string& text) { set(text.c_str()); return *this; }
 
-		bool toBool() const { validate(_Type::Boolean); return _value == grammar::_valueTrue; }
-		int toInt() const { validate(_Type::Number); return std::atoi(_value.c_str()); }
-		double toDouble() const { validate(_Type::Number); return std::atof(_value.c_str()); }
-		int64_t toInt64() const { validate(_Type::Number); return std::atoll(_value.c_str()); }
-		uint64_t toUint64() const { validate(_Type::Number); return std::stoull(_value.c_str()); }
-		const std::string& toString() const {
-			validate(_Type::String);
+		[[nodiscard]] bool toBool() const { validate(Type::Boolean); return _value == grammar::_valueTrue; }
+		[[nodiscard]] int toInt() const { validate(Type::Number); return std::atoi(_value.c_str()); }
+		[[nodiscard]] double toDouble() const { validate(Type::Number); return std::atof(_value.c_str()); }
+		[[nodiscard]] int64_t toInt64() const { validate(Type::Number); return std::atoll(_value.c_str()); }
+		[[nodiscard]] uint64_t toUint64() const { validate(Type::Number); return std::stoull(_value.c_str()); }
+		[[nodiscard]] const std::string& toString() const {
+			validate(Type::String);
 			return _value;
 		}
 
@@ -108,27 +109,27 @@ namespace json {
 		operator int64_t() const { return toInt64(); }
 		operator uint64_t() const { return toUint64(); }
 		operator const char* () const {
-			return _Type::Null == _type ? nullptr : toString().c_str();
+			return Type::Null == _type ? nullptr : toString().c_str();
 		}
-		operator std::vector<data>() const { validate(_Type::Array); return _elements; }
+		operator const std::vector<data>&() const { validate(Type::Array); return _elements; }
 
-		size_t length() const {
-			if (_type != _Type::Array) throw std::invalid_argument("Unsupported object type; expected JSON array");
+		[[nodiscard]] size_t length() const {
+			if (_type != Type::Array) throw std::invalid_argument("Unsupported object type; expected JSON array");
 			return _elements.size();
 		}
 
 		const data& operator[](int index) const {
-			if (_type != _Type::Array) throw std::invalid_argument("Unsupported object type; expected JSON array");
+			if (_type != Type::Array) throw std::invalid_argument("Unsupported object type; expected JSON array");
 			if (_elements.size() <= index) throw std::invalid_argument("Index out-of-bounds");
 			return _elements[index];
 		}
 
 		data& operator[](int index) {
-			if (_type != _Type::Array) { reset(); _type = _Type::Array; }
+			if (_type != Type::Array) { reset(); _type = Type::Array; }
 			if (_elements.size() < index)
-				_elements.resize(index + size_t(1));
+				_elements.resize(index + static_cast<size_t>(1));
 			if (_elements.size() == index)
-				_elements.push_back(json::data());
+				_elements.emplace_back(std::move(json::data()));
 			return _elements[index];
 		}
 
@@ -138,17 +139,17 @@ namespace json {
 		}
 
 		const data& operator[](const char* name) const {
-			if (_type != _Type::Object) throw std::invalid_argument("Unsupported object type; expected JSON object");
+			if (_type != Type::Object) throw std::invalid_argument("Unsupported object type; expected JSON object");
 			const auto itr = std::find_if(_members.begin(), _members.end(), [&](const auto& pair) { return pair.first == name; });
 			if (itr == _members.end()) throw std::invalid_argument("Member does not exists");
 			return itr->second;
 		}
 
 		data& operator[](const char* name) {
-			if (_type != _Type::Object) { reset(); _type = _Type::Object; }
+			if (_type != Type::Object) { reset(); _type = Type::Object; }
 			auto itr = std::find_if(_members.begin(), _members.end(), [&](const auto& pair) { return pair.first == name; });
 			if (itr == _members.end()) {
-				_members.push_back(std::make_pair(name, data()));
+				_members.emplace_back(name, data());
 				return _members.back().second;
 			}
 			return itr->second;
@@ -165,21 +166,21 @@ namespace json {
 		friend std::ostream& operator<<(std::ostream& out, const data& json) { return json.toStream(out); }
 		friend std::istream& operator>>(std::istream& in, data& json) { return json.fromStream(in); }
 
-		static json::data emptyArray() { json::data arr; arr._type = _Type::Array; return arr; }
+		static json::data emptyArray() { json::data arr; arr._type = Type::Array; return arr; }
 
 	private:
-		_Type _type;
+		Type _type { Type::Null };
 		std::string _value;
 		std::vector<data> _elements;
 		std::vector<std::pair<std::string, data>> _members;
 
-		inline void validate(_Type type) const {
+		inline void validate(Type type) const {
 			if (_type != type)
 				throw std::runtime_error("Json value is not of expected type");
 		}
 
 		inline void reset() {
-			_type = _Type::Null;
+			_type = Type::Null;
 			_value = "";
 			_elements.clear();
 			_members.clear();
@@ -195,37 +196,37 @@ namespace json {
 		inline void set(const char* text) {
 			reset();
 			if (!text) return;
-			_type = _Type::String;
+			_type = Type::String;
 			_value = text;
 		}
 
 		inline void set(bool flag) {
 			reset();
-			_type = _Type::Boolean;
+			_type = Type::Boolean;
 			_value = flag ? grammar::_valueTrue : grammar::_valueFalse;
 		}
 
 		inline void set(int number) {
 			reset();
-			_type = _Type::Number;
+			_type = Type::Number;
 			_value = std::to_string(number);
 		}
 
 		inline void set(double number) {
 			reset();
-			_type = _Type::Number;
+			_type = Type::Number;
 			_value = std::to_string(number);
 		}
 
 		inline void set(int64_t number) {
 			reset();
-			_type = _Type::Number;
+			_type = Type::Number;
 			_value = std::to_string(number);
 		}
 
 		inline void set(uint64_t number) {
 			reset();
-			_type = _Type::Number;
+			_type = Type::Number;
 			_value = std::to_string(number);
 		}
 
@@ -234,14 +235,14 @@ namespace json {
 			using namespace grammar;
 			switch (_type) {
 			default:
-			case _Type::Null:
+			case Type::Null:
 				out << _valueNull;
 				break;
-			case _Type::Number:
-			case _Type::Boolean:
+			case Type::Number:
+			case Type::Boolean:
 				out << _value;
 				break;
-			case _Type::String:
+			case Type::String:
 				out << _doubleQuotes;
 				std::for_each(begin(_value), end(_value), [&](const auto& ch) {
 					if (is_escaped(ch)) out << _reverseSolidus;
@@ -254,7 +255,7 @@ namespace json {
 					});
 				out << _doubleQuotes;
 				break;
-			case _Type::Array:
+			case Type::Array:
 				out << _beginArray;
 				formatter::indent(out) += 1;
 				std::for_each(_elements.begin(), _elements.end(), [&](const auto& element) {if (element != _elements.front()) out << _valueSeparator; if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' '); out << element; });
@@ -262,7 +263,7 @@ namespace json {
 				if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' ');
 				out << _endArray;
 				break;
-			case _Type::Object:
+			case Type::Object:
 				out << _beginObject;
 				formatter::indent(out) += 1;
 				std::for_each(_members.begin(), _members.end(), [&](const auto& pair) { if (pair != _members.front()) out << _valueSeparator; if (pretty) out << std::endl << std::string(formatter::indent(out) * formatter::tab_width, u8' '); out << _doubleQuotes << pair.first << _doubleQuotes << _nameSeparator << (pretty? " " : "") << pair.second; });
@@ -285,7 +286,7 @@ namespace json {
 						std::string value;
 						while (-1 != (ch = in.peek())) {
 							if (!is(_valueNull, ch)) break;
-							value += (char)in.get();
+							value += static_cast<char>(in.get());
 						}
 						if (_valueNull != value) throw std::invalid_argument("Unsupported data in input stream. NULL");
 						parsed = true;
@@ -293,21 +294,21 @@ namespace json {
 					else if (is(_valueTrue, ch) || is(_valueFalse, ch)) {
 						while (-1 != (ch = in.peek())) {
 							if (!is(_valueTrue, ch) && !is(_valueFalse, ch)) break;
-							_value += (char)in.get();
+							_value += static_cast<char>(in.get());
 						}
 						if (_valueTrue != _value && _valueFalse != _value)
 							throw std::invalid_argument("Unsupported data in input stream. BOOL");
-						_type = _Type::Boolean;
+						_type = Type::Boolean;
 						parsed = true;
 					}
 					else if (is(_digitStart, ch)) {
 						while (-1 != (ch = in.peek())) {
 							if (!is(_digit, ch)) break;
-							_value += (char)in.get();
+							_value += static_cast<char>(in.get());
 						}
 						if (!is_digit(_value))
 							throw std::invalid_argument("Unsupported data in input stream. NUMBER");
-						_type = _Type::Number;
+						_type = Type::Number;
 						parsed = true;
 					}
 					else if (is(_doubleQuotes, ch)) {
@@ -326,13 +327,13 @@ namespace json {
 								else if ('t' == ch) { in.get(); _value += _tab; escaped = false; }
 							}
 							else {
-								_value += (char)in.get();
+								_value += static_cast<char>(in.get());
 							}
 						}
 						if (!is(_doubleQuotes, ch))
 							throw std::invalid_argument("Unsupported data in input stream. STRING");
 						in.get(); // discard ending quote
-						_type = _Type::String;
+						_type = Type::String;
 						parsed = true;
 					}
 					else if (is(_beginArray, ch)) {
@@ -344,8 +345,8 @@ namespace json {
 							in >> element;
 							elements.push_back(element);
 						}
-						in.get(); // discard endign array
-						_type = _Type::Array;
+						in.get(); // discard ending array
+						_type = Type::Array;
 						_elements = std::move(elements);
 						parsed = true;
 					}
@@ -355,7 +356,7 @@ namespace json {
 						while (-1 != (ch = in.peek()) && *_endObject != ch) {
 							if (is(_valueSeparator, ch) || is(_patternWhitespaces, ch)) { in.get(); continue; } // discard value separator
 							data name; in >> name;
-							if (name._type != _Type::String)
+							if (name._type != Type::String)
 								throw std::invalid_argument("Unsupported data in input stream. OBJECT_NAME");
 							while (-1 != (ch = in.peek()) && is(_patternWhitespaces, ch)) in.get(); // discard name separator
 							if (-1 != (ch = in.peek()) && is(_nameSeparator, ch)) {
@@ -365,10 +366,10 @@ namespace json {
 								throw std::invalid_argument("Unsupported data in input stream. OBJECT");
 							}
 							data value; in >> value;
-							member.push_back(std::make_pair((std::string)name, value));
+							member.emplace_back(static_cast<std::string>(name), value);
 						}
 						in.get(); // discard ending object
-						_type = _Type::Object;
+						_type = Type::Object;
 						_members = std::move(member);
 						parsed = true;
 					}
@@ -382,11 +383,8 @@ namespace json {
 				else if (is(_patternWhitespaces, ch)) {
 					in.get(); // discard whitespaces
 				}
-				else if (parsed) {
-					return in;
-				}
 				else {
-					throw std::invalid_argument("Unsupported data in input stream");
+					return in;
 				}
 			}
 			return in;
@@ -394,8 +392,8 @@ namespace json {
 
 		static bool is_digit(const std::string& text) { return std::regex_match(text, std::regex(grammar::_digitPattern)); }
 
-		static bool is(const char* pattern, char ch) {
-			return std::regex_match(&ch, &ch + 1, std::regex(std::string("[") + pattern + "]"));
+		static bool is(const char* pattern, int ch) {
+			return std::regex_match(reinterpret_cast<char *>(&ch), reinterpret_cast<char *>(&ch) + 1, std::regex(std::string("[") + pattern + "]"));
 		}
 
 		static bool is_escaped(char ch) {
